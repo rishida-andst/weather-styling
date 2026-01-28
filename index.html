@@ -57,8 +57,6 @@
 			  { "max": 30, "min": 24, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508332/9508332_1_1753972007688_l.jpg", "weather": ["晴"], "comment": "トレンド感のある半袖Tシャツ×デニムで、涼しげな大人カジュアルスタイル！" },
 			  { "max": 30, "min": 25, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508327/9508327_1_1753971899358_l.jpg", "weather": ["晴", "曇"], "comment": "夏らしいTシャツとバギーデニムで、快適なリラックスカジュアルスタイル！" },
 			  { "max": 30, "min": 24, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440403/9440403_1_1751291641216_l.jpg", "weather": ["晴", "曇"], "comment": "オープンカラーシャツとフレアデニムで、リラックス感のある旬の夏スタイル。" },
-			  { "max": 3, "min": -5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143864/9143864_1_1740754747389_l.jpg", "weather": ["晴", "曇"], "comment": "暖かなファーブルゾンで旬の甘辛ミックススタイル。" },
-			  { "max": 3, "min": -4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9709550/9709550_1_1761909598106_l.jpg", "weather": ["晴", "曇"], "comment": "もこもこファーが可愛い、暖かみのある冬sのカジュアルスタイル" },
 			  { "max": 29, "min": 23, "url": "https://static-sb.dot-st.com/jp/ja/styling/9434641/9434641_1_1751084729894_l.jpg", "weather": ["晴", "曇"], "comment": "ストリート感溢れるカジュアルで、リラックス感と個性を演出。" },
 			  { "max": 29, "min": 23, "url": "https://static-sb.dot-st.com/jp/ja/styling/9367229/9367229_1_1748702360736_l.jpg", "weather": ["晴", "曇"], "comment": "レースの透け感とライトカラーが涼しげな、夏のリラックススタイル。" },
 			  { "max": 28, "min": 22, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569746/9569746_1_1756652390135_l.jpg", "weather": ["晴", "曇"], "comment": "USEDライクTと柄スカートで大人カジュアルな夏スタイル" },
@@ -333,7 +331,9 @@
 			  { "max": 8, "min": 1, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710346/9710346_1_1761922719019_l.jpg", "weather": ["晴", "曇"], "comment": "クラシックなネイビーのツイードセットアップが上品。冬らしい素材感が素敵。" },
 			  { "max": 8, "min": -2, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078455/9078455_1_1738334760185_l.jpg", "weather": ["晴", "曇"], "comment": "Aラインコートが優雅な、モノトーンの上品カジュアル。" },
 			  { "max": 5, "min": -2, "url": "https://static-sb.dot-st.com/jp/ja/styling/8988367/8988367_1_1734868323233_l.jpg", "weather": ["曇", "雨"], "comment": "オーバーサイズのコートが主役の、暖かくスタイリッシュな防寒コーデ。" },
-			  { "max": 5, "min": -3, "url": "https://static-sb.dot-st.com/jp/ja/styling/9007086/9007086_1_1735555759843_l.jpg", "weather": ["晴", "曇"], "comment": "ブラックとデニムでまとめた、冬の大人カジュアルスタイル" }
+			  { "max": 5, "min": -3, "url": "https://static-sb.dot-st.com/jp/ja/styling/9007086/9007086_1_1735555759843_l.jpg", "weather": ["晴", "曇"], "comment": "ブラックとデニムでまとめた、冬の大人カジュアルスタイル" },
+			  { "max": 3, "min": -5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143864/9143864_1_1740754747389_l.jpg", "weather": ["晴", "曇"], "comment": "暖かなファーブルゾンで旬の甘辛ミックススタイル。" },
+			  { "max": 3, "min": -4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9709550/9709550_1_1761909598106_l.jpg", "weather": ["晴", "曇"], "comment": "もこもこファーが可愛い、暖かみのある冬sのカジュアルスタイル" }  
 		];
         
 
@@ -357,10 +357,10 @@
 
             const buttons = [
                 { id: "ALL", label: "すべて", icon: null, color: "indigo" },
-                { id: "晴", label: "晴れ", icon: <EmojiIcon symbol="☀️" />, color: "orange" },
-                { id: "曇", label: "曇り", icon: <EmojiIcon symbol="☁️" />, color: "gray" },
-                { id: "雨", label: "雨", icon: <EmojiIcon symbol="☂️" />, color: "blue" },
-                { id: "雪", label: "雪", icon: <EmojiIcon symbol="❄️" />, color: "cyan" },
+                { id: 1, label: "晴れ", icon: <EmojiIcon symbol="☀️" />, color: "orange" },
+                { id: 2, label: "曇り", icon: <EmojiIcon symbol="☁️" />, color: "gray" },
+                { id: 3, label: "雨", icon: <EmojiIcon symbol="☂️" />, color: "blue" },
+                { id: 4, label: "雪", icon: <EmojiIcon symbol="❄️" />, color: "cyan" },
             ];
 
             return (
