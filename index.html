@@ -15,17 +15,17 @@
         /* ロード時のちらつき防止 */
         body { opacity: 0; transition: opacity 0.5s; }
         body.loaded { opacity: 1; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="bg-slate-50">
     <div id="root"></div>
 
     <script type="text/babel">
+        // グローバル変数からReactの機能を取り出す (importを使わない方法)
         const { useState, useEffect } = React;
         const { createRoot } = ReactDOM;
 
+        // アイコンの代わりに絵文字コンポーネントを定義
         const EmojiIcon = ({ symbol, color }) => (
             <span className={`inline-flex items-center justify-center w-4 h-4 text-sm ${color || ''}`}>
                 {symbol}
@@ -34,456 +34,469 @@
 
         // --- データ定義 ---
         const RAW_DATA = [
-			{ "max": 37, "min": 30, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508273/9508273_1_1753971035417_l.jpg", "weather_code": [1, 2], "comment": "白キャミとデニムで涼しげな夏コーデ" },
-			{ "max": 33, "min": 27, "url": "https://static-sb.dot-st.com/jp/ja/styling/9216473/9216473_1_1743433009357_l.jpg", "weather_code": [1], "comment": "夏の暑さを乗り切る快適なインナー" },
-			{ "max": 32, "min": 25, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569692/9569692_1_1756651421162_l.jpg", "weather_code": [1, 2], "comment": "ふわふわベストとパンツの大人カジュアルコーデ" },
-			{ "max": 32, "min": 23, "url": "https://static-sb.dot-st.com/jp/ja/styling/9506044/9506044_1_1753905368319_l.jpg", "weather_code": [1, 2], "comment": "レースベストが涼しげで夏らしい装い。" },
-			{ "max": 32, "min": 23, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440535/9440535_1_1751295122518_l.jpg", "weather_code": [1, 2], "comment": "涼しげなノースリーブとワイドパンツで夏らしい装い。" },
-			{ "max": 32, "min": 23, "url": "https://static-sb.dot-st.com/jp/ja/styling/9367278/9367278_1_1748703384895_l.jpg", "weather_code": [1, 2], "comment": "フリンジニットとワイドパンツの異素材MIXがおしゃれ。" },
-			{ "max": 32, "min": 23, "url": "https://static-sb.dot-st.com/jp/ja/styling/8532570/8532570_1_1719663356924_l.jpg", "weather_code": [1], "comment": "ストローハットとサロペットで夏のお出かけスタイル" },
-			{ "max": 32, "min": 25, "url": "https://static-sb.dot-st.com/jp/ja/styling/9541386/9541386_1_1755489355535_l.jpg", "weather_code": [1, 2], "comment": "涼しげなノースリーブとワイドパンツの大人カジュアルコーデ" },
-			{ "max": 32, "min": 23, "url": "https://static-sb.dot-st.com/jp/ja/styling/7600652/7600652_0_1687046158988_l.jpg", "weather_code": [1, 3], "comment": "ノースリーブとパンツの涼やかコーデ" },
-			{ "max": 31, "min": 22, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508408/9508408_1_1753973847675_l.jpg", "weather_code": [1], "comment": "モノトーンチェックで大人カジュアルに決まる。" },
-			{ "max": 31, "min": 24, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508401/9508401_1_1753973587185_l.jpg", "weather_code": [1, 2], "comment": "クールなモノトーンコーデ。ジレがアクセント。" },
-			{ "max": 31, "min": 24, "url": "https://static-sb.dot-st.com/jp/ja/styling/9288960/9288960_1_1746010735314_l.jpg", "weather_code": [1, 2], "comment": "白のワントーンコーデが爽やかで涼しげ。" },
-			{ "max": 31, "min": 26, "url": "https://static-sb.dot-st.com/jp/ja/styling/9419409/9419409_6_1750555587315_l.jpg", "weather_code": [1, 3], "comment": "フレンチスリーブとサンダルで涼やか夏コーデ" },
-			{ "max": 30, "min": 21, "url": "https://static-sb.dot-st.com/jp/ja/styling/9500191/9500191_1_1753679356012_l.jpg", "weather_code": [1, 2], "comment": "ポップなTシャツとストライプ柄のボトムスが夏らしい" },
-			{ "max": 30, "min": 23, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440524/9440524_1_1751295025667_l.jpg", "weather_code": [1, 2], "comment": "元気なショートパンツコーデ！" },
-			{ "max": 29, "min": 20, "url": "https://static-sb.dot-st.com/jp/ja/styling/9216046/9216046_1_1743420786509_l.jpg", "weather_code": [1], "comment": "元気いっぱいの夏コーデ！" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508414/9508414_1_1753973942870_l.jpg", "weather_code": [1], "comment": "白ブラウスとベージュパンツの爽やかコーデ。" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508165/9508165_1_1753968922801_l.jpg", "weather_code": [1, 2], "comment": "ポップなTシャツとベストのレイヤードがおしゃれ！" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508403/9508403_1_1753973718945_l.jpg", "weather_code": [1, 3], "comment": "爽やかなイエローとベージュの組み合わせが涼しげ。" },
-			{ "max": 28, "min": 21, "url": "https://static-sb.dot-st.com/jp/ja/styling/9486513/9486513_1_1753106698807_l.jpg", "weather_code": [1, 2], "comment": "クールなモノトーンコーデ。ワイドパンツが映える。" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440505/9440505_1_1751294781624_l.jpg", "weather_code": [2, 4], "comment": "スポーティーなセットアップでリラックス感のある着こなし。" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440222/9440222_1_1751287131196_l.jpg", "weather_code": [1, 3], "comment": "カジュアルなTシャツとジャンパースカートの組み合わせが可愛い" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440530/9440530_1_1751295081930_l.jpg", "weather_code": [1, 2], "comment": "軽やかなジャケットとフリルスカートの甘辛MIXコーデ" },
-			{ "max": 28, "min": 22, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440533/9440533_1_1751295099665_l.jpg", "weather_code": [1], "comment": "薄手ニットとワイドパンツの大人カジュアルコーデ" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440531/9440531_1_1751295089533_l.jpg", "weather_code": [1], "comment": "個性的柄パンツとロゴTの夏コーデ" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9324339/9324339_1_1747238838302_l.jpg", "weather_code": [1, 2], "comment": "カジュアルなTシャツとワイドパンツの夏コーデ" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9367271/9367271_1_1748703267230_l.jpg", "weather_code": [1, 2], "comment": "透け感のあるシャツとワイドパンツの涼やかコーデ" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9367275/9367275_1_1748703310056_l.jpg", "weather_code": [1, 2], "comment": "透け感のあるトップスと柄スカーフの異素材MIXがお洒落。" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9289647/9289647_1_1746025027638_l.jpg", "weather_code": [1], "comment": "軽やかなシアーシャツとショートパンツの夏コーデ" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9216468/9216468_1_1743432856479_l.jpg", "weather_code": [1, 2], "comment": "軽やかなブラウスと柄パンツの涼しげコーデ" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9216465/9216465_1_1743432798864_l.jpg", "weather_code": [1, 2], "comment": "スポーティーなTシャツとデニムショーツの組み合わせ" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9591950/9591950_1_1757556318805_l.jpg", "weather_code": [2], "comment": "チェック柄シャツとスウェットパンツでリラックス感のある着こなし。" },
-			{ "max": 28, "min": 17, "url": "https://static-sb.dot-st.com/jp/ja/styling/9591928/9591928_1_1757555984846_l.jpg", "weather_code": [1, 2], "comment": "ストライプシャツとスウェットパンツの爽やかコーデ" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9591912/9591912_1_1757555596259_l.jpg", "weather_code": [1], "comment": "爽やかな白シャツとスウェットパンツのラフコーデ" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508332/9508332_1_1753972007688_l.jpg", "weather_code": [1, 1], "comment": "ゆったりシルエットで涼しげな夏コーデ" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508313/9508313_1_1753971774847_l.jpg", "weather_code": [1], "comment": "ゆったりシルエットで夏らしい快適コーデ" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508303/9508303_1_1753971697699_l.jpg", "weather_code": [1], "comment": "Tシャツとワイドデニムのラフな着こなし" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440392/9440392_1_1751291455751_l.jpg", "weather_code": [1, 2], "comment": "オーバーサイズTシャツとチェックシャツのレイヤードがおしゃれ。" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440389/9440389_1_1751291337176_l.jpg", "weather_code": [1, 2], "comment": "チェック柄シャツとスウェットパンツのラフコーデ" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440399/9440399_1_1751291563721_l.jpg", "weather_code": [1, 2], "comment": "ストリート感のあるモノトーンコーデがお洒落。" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9435705/9435705_1_1751121460248_l.jpg", "weather_code": [1], "comment": "涼やかな浴衣スタイルが夏らしいですね。" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9434641/9434641_1_1751084729894_l.jpg", "weather_code": [1], "comment": "ラグラントップスとワイドデニムのストリートスタイル" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9367225/9367225_1_1748702294555_l.jpg", "weather_code": [1, 2], "comment": "爽やかなブルーのシャツが涼しげで良いですね。" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9367229/9367229_1_1748702360736_l.jpg", "weather_code": [1, 2], "comment": "白の総柄シャツとネイビーパンツの爽やかコーデ" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9366238/9366238_1_1748676489252_l.jpg", "weather_code": [2], "comment": "開襟シャツとスラックスの大人カジュアルコーデ" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9367123/9367123_1_1748699956221_l.jpg", "weather_code": [1], "comment": "モノトーンでまとめた都会的なカジュアルスタイル。" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9344823/9344823_1_1747910941829_l.jpg", "weather_code": [1, 2], "comment": "メッシュシャツとカーゴパンツの旬な着こなし。" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9367042/9367042_1_1748697350871_l.jpg", "weather_code": [1], "comment": "ラフなカーゴパンツとTシャツの組み合わせが快適。" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9288013/9288013_1_1745989303354_l.jpg", "weather_code": [1], "comment": "開襟シャツとリネンパンツで涼しげな夏コーデ。" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9289634/9289634_1_1746024589556_l.jpg", "weather_code": [1], "comment": "シアーシャツとデニムの大人カジュアルコーデ" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9277596/9277596_1_1745591332571_l.jpg", "weather_code": [1, 3], "comment": "ネオンカラーTシャツが映えるアクティブコーデ" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9288935/9288935_1_1746010085348_l.jpg", "weather_code": [1], "comment": "シアーシャツと光沢インナーのレイヤードがクール。" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569346/9569346_1_1756644517297_l.jpg", "weather_code": [1, 2], "comment": "元気なストリートスタイルが可愛い！" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9568905/9568905_1_1756632134854_l.jpg", "weather_code": [1, 2], "comment": "白Tとカーゴパンツの爽やかコーデ！" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9507602/9507602_1_1753955353837_l.jpg", "weather_code": [1, 2], "comment": "グラフィックTシャツとデニムの組み合わせが個性的。" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9486556/9486556_1_1753110806292_l.jpg", "weather_code": [1], "comment": "ストライプTとデニムの爽やかコーデ" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440543/9440543_1_1751295303742_l.jpg", "weather_code": [1], "comment": "スポーティーなTシャツとデニムショートパンツの夏コーデ" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9372418/9372418_1_1748916500722_l.jpg", "weather_code": [1], "comment": "古着風Tシャツとリゾート柄ショーツで夏を満喫！" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440028/9440028_1_1751281904392_l.jpg", "weather_code": [1], "comment": "夏らしい花柄浴衣で涼しげな装い。" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9355564/9355564_1_1748319185319_l.jpg", "weather_code": [1], "comment": "スポーティーなセットアップで元気いっぱい！" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9366730/9366730_1_1748688449771_l.jpg", "weather_code": [1, 2], "comment": "元気なツインテールとプリーツスカートが可愛い！" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9365794/9365794_1_1748663293048_l.jpg", "weather_code": [1], "comment": "黒地に赤のチェリー柄が可愛いワンピース。" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9287057/9287057_1_1745972401121_l.jpg", "weather_code": [1], "comment": "元気なデニムショーツとTシャツの組み合わせ" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9208306/9208306_1_1743142250496_l.jpg", "weather_code": [1], "comment": "スポーティで元気なカジュアルコーデ！" },
-			{ "max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9366693/9366693_1_1748687594596_l.jpg", "weather_code": [1, 2], "comment": "ラフィアハットとギャザーワンピースで夏らしい装い。" },
-			{ "max": 28, "min": 22, "url": "https://static-sb.dot-st.com/jp/ja/styling/9254612/9254612_1_1744818067239_l.jpg", "weather_code": [1, 2], "comment": "メッシュベストとチェック柄スカート의 レイヤードがおしゃれ。" },
-			{ "max": 28, "min": 23, "url": "https://static-sb.dot-st.com/jp/ja/styling/9441405/9441405_1_1751343903482_l.jpg", "weather_code": [1, 3], "comment": "白のブラウスと黒のショートパンツのモノトーンコーデ" },
-			{ "max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710352/9710352_1_1761922778492_l.jpg", "weather_code": [1, 2], "comment": "光沢感のあるシャツとレザー風スカートのモードな着こなし。" },
-			{ "max": 27, "min": 20, "url": "https://static-sb.dot-st.com/jp/ja/styling/9568535/9568535_1_1756620206278_l.jpg", "weather_code": [1, 2], "comment": "明るいイエローのニットシャツが爽やか！" },
-			{ "max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569725/9569725_1_1756652013341_l.jpg", "weather_code": [1, 2], "comment": "ブラックのベストとデニムの大人カジュアルコーデ" },
-			{ "max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9568540/9568540_1_1756620252802_l.jpg", "weather_code": [1], "comment": "クールなポロシャツとトラックパンツの着こなし" },
-			{ "max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9451863/9451863_3_1751739291741_l.jpg", "weather_code": [1, 2], "comment": "Tシャツとロングスカートのラフな組み合わせが可愛い。" },
-			{ "max": 27, "min": 20, "url": "https://static-sb.dot-st.com/jp/ja/styling/9506043/9506043_1_1753905337122_l.jpg", "weather_code": [1], "comment": "フリル袖Tシャツとデニムのカジュアルコーデ" },
-			{ "max": 27, "min": 16, "url": "https://static-sb.dot-st.com/jp/ja/styling/9436213/9436213_1_1751157789081_l.jpg", "weather_code": [1], "comment": "カジュアルながらも上品な大人カジュアルコーデ" },
-			{ "max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9367279/9367279_1_1748703412019_l.jpg", "weather_code": [1, 2], "comment": "リネンパンツとニットの大人カジュアルコーデ" },
-			{ "max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9367212/9367212_1_1748701883519_l.jpg", "weather_code": [1], "comment": "レースキャミとロゴTのレイヤードがおしゃれ。" },
-			{ "max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9363528/9363528_1_1748586208804_l.jpg", "weather_code": [1], "comment": "ロゴTとロングスカートの大人カジュアルコーデ" },
-			{ "max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9289644/9289644_1_1746024985216_l.jpg", "weather_code": [1], "comment": "モードな雰囲気のセットアップスタイル。" },
-			{ "max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9216472/9216472_1_1743432959132_l.jpg", "weather_code": [1, 2], "comment": "メッシュTとギャザースカートの異素材MIXがお洒落" },
-			{ "max": 27, "min": 16, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143156/9143156_1_1740737640265_l.jpg", "weather_code": [1, 2], "comment": "デニムジャケットと花柄スカートの大人カジュアルコーデ" },
-			{ "max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9637962/9637962_1_1759243385144_l.jpg", "weather_code": [1, 2, 3], "comment": "ゆったりカーゴパンツと合わせたリラックスコーデ" },
-			{ "max": 27, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9637958/9637958_1_1759243289885_l.jpg", "weather_code": [1, 2, 3], "comment": "ブルーのTシャツとカーゴパンツのラフな着こなし" },
-			{ "max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9591940/9591940_1_1757556153118_l.jpg", "weather_code": [1, 2], "comment": "透け感のあるニットシャツが涼しげで夏らしい。" },
-			{ "max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9564692/9564692_1_1756455160312_l.jpg", "weather_code": [1, 2], "comment": "爽やかなストライプシャツとプリントTのレイヤードスタイル" },
-			{ "max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9564661/9564661_1_1756454404186_l.jpg", "weather_code": [1], "comment": "ゆったりTシャツとワイドパンツでリラックス感のある装い。" },
-			{ "max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508335/9508335_1_1753972107549_l.jpg", "weather_code": [1], "comment": "ラフなTシャツとワイドデニムでリラックス感のある着こなし。" },
-			{ "max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508327/9508327_1_1753971899358_l.jpg", "weather_code": [1], "comment": "ヴィンテージライクなTシャツとワイドデニムの夏コーデ" },
-			{ "max": 27, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508380/9508380_1_1753972901760_l.jpg", "weather_code": [1], "comment": "夏らしい開襟シャツとワイドパンツのセットアップコーデ" },
-			{ "max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440541/9440541_1_1751295215020_l.jpg", "weather_code": [1, 2], "comment": "モノトーンコーデにサンダルが映える。" },
-			{ "max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440520/9440520_1_1751294994429_l.jpg", "weather_code": [1], "comment": "ラフなTシャツとパンツの好バランスコーデ" },
-			{ "max": 27, "min": 21, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440403/9440403_1_1751291641216_l.jpg", "weather_code": [1], "comment": "チェック柄の半袖シャツとデニムの爽やかコーデ" },
-			{ "max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440397/9440397_1_1751291539456_l.jpg", "weather_code": [1], "comment": "爽やかな白シャツとデニムの夏コーデ" },
-			{ "max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9367221/9367221_1_1748702209223_l.jpg", "weather_code": [1, 2], "comment": "夏らしい開襟シャツとパンツの爽やかコーデ" },
-			{ "max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9344814/9344814_1_1747910807453_l.jpg", "weather_code": [1, 2], "comment": "ストライプシャツとワイドパンツの爽やかコーデ" },
-			{ "max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9288903/9288903_1_1746009148256_l.jpg", "weather_code": [1], "comment": "ピグメント加工のTシャツとペインターショーツのセットアップがクール。" },
-			{ "max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9216219/9216219_1_1743425765426_l.jpg", "weather_code": [1], "comment": "シンプルで洗練されたモノトーンコーデ。" },
-			{ "max": 27, "min": 20, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569427/9569427_1_1756646347016_l.jpg", "weather_code": [1, 2], "comment": "涼やかで爽やかな白コーデがおしゃれ！" },
-			{ "max": 27, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9507274/9507274_1_1753947385532_l.jpg", "weather_code": [1], "comment": "爽やかなTシャツとショートパンツで夏らしい装い。" },
-			{ "max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440469/9440469_1_1751293595839_l.jpg", "weather_code": [1], "comment": "白Tシャツと黒パンツのモノトーンコーデ！" },
-			{ "max": 27, "min": 21, "url": "https://static-sb.dot-st.com/jp/ja/styling/9287039/9287039_1_1745972002408_l.jpg", "weather_code": [1, 2], "comment": "爽やかな白Tとデニムの組み合わせが夏らしい！" },
-			{ "max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9287825/9287825_1_1746014629264_l.jpg", "weather_code": [1, 3], "comment": "スポーティで元気なカジュアルコーデ！" },
-			{ "max": 27, "min": 16, "url": "https://static-sb.dot-st.com/jp/ja/styling/9254221/9254221_1_1744806061630_l.jpg", "weather_code": [1], "comment": "メッシュカーディガンとデニムの夏コーデ" },
-			{ "max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9215982/9215982_1_1743419425615_l.jpg", "weather_code": [1, 3], "comment": "元気なカジュアルコーデ！明るいバッグがアクセント。" },
-			{ "max": 27, "min": 16, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508666/9508666_1_1754009456434_l.jpg", "weather_code": [1, 3], "comment": "ペプラムトップスとワイドパンツのバランスが良い。" },
-			{ "max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9319927/9319927_1_1747124090926_l.jpg", "weather_code": [1], "comment": "リラックス感のあるセットアップコーデ。" },
-			{ "max": 26, "min": 16, "url": "https://static-sb.dot-st.com/jp/ja/styling/9009301/9009301_1_1735651434910_l.jpg", "weather_code": [1, 2], "comment": "落ち着いた色合いでまとめた大人カジュアルコーデ" },
-			{ "max": 25, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9371910/9371910_5_1748885546184_l.jpg", "weather_code": [1, 2], "comment": "白Tと黒パンツのモノトーンコーデ" },
-			{ "max": 24, "min": 15, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710336/9710336_1_1761922659729_l.jpg", "weather_code": [1, 2], "comment": "軽やかなカーディガンとデニムの大人カジュアルコーデ" },
-			{ "max": 24, "min": 13, "url": "https://static-sb.dot-st.com/jp/ja/styling/9289393/9289393_1_1746020065172_l.jpg", "weather_code": [1, 2], "comment": "シアー素材のレイヤードがお洒落。" },
-			{ "max": 24, "min": 15, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710344/9710344_1_1761922714023_l.jpg", "weather_code": [1, 2], "comment": "チェック柄シャツとコーデュロイパンツのカジュアルコーデ" },
-			{ "max": 24, "min": 13, "url": "https://static-sb.dot-st.com/jp/ja/styling/9753346/9753346_1_1764132996939_l.jpg", "weather_code": [2, 4], "comment": "カジュアルで可愛いハート柄デニムコーデ" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710350/9710350_1_1761922749836_l.jpg", "weather_code": [2, 1], "comment": "レイヤードスタイルがおしゃれで知的。" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9637996/9637996_1_1759244329881_l.jpg", "weather_code": [1, 2], "comment": "シアー素材とビスチェのレイヤードがおしゃれ。" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9614574/9614574_1_1758370533717_l.jpg", "weather_code": [1, 2, 3], "comment": "カジュアルなパーカーにレースを効かせた甘辛MIXコーデ" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9637977/9637977_4_1759243696431_l.jpg", "weather_code": [1, 2], "comment": "リブニットとデニムの大人カジュアルコーデ" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9557920/9557920_1_1756185359343_l.jpg", "weather_code": [1, 2], "comment": "淡いピンクのニットとベージュのパンツで優しい印象。" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9637985/9637985_1_1759243842272_l.jpg", "weather_code": [1, 2], "comment": "シックな黒でまとめたモードスタイル。" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569746/9569746_1_1756652390135_l.jpg", "weather_code": [1, 2], "comment": "モノトーンコーデにモードな小物が映える" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569744/9569744_1_1756652366972_l.jpg", "weather_code": [1], "comment": "メッシュニットとデニムのラフな組み合わせが素敵" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569739/9569739_1_1756652249661_l.jpg", "weather_code": [1, 2], "comment": "モノトーンコーデにチェック柄が映える大人カジュアル" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569738/9569738_1_1756652242657_l.jpg", "weather_code": [1, 2], "comment": "シアー素材とチェック柄の甘辛ミックスコーデ" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440556/9440556_1_1751295533011_l.jpg", "weather_code": [1, 2], "comment": "肩出しニットがおしゃれで素敵ですね。" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9423513/9423513_1_1750693691728_l.jpg", "weather_code": [1, 2], "comment": "涼やかなサロペットにカーディガンを羽織った上品コーデ" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440539/9440539_2_1751295184763_l.jpg", "weather_code": [1, 2], "comment": "シアーなアームカバーが個性的で素敵。" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9345295/9345295_1_1747925031839_l.jpg", "weather_code": [1, 2], "comment": "リネンジャケットとタンクトップの軽やかな装い" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9363117/9363117_1_1748578909691_l.jpg", "weather_code": [1, 2, 3], "comment": "ラミーシャツとワイドデニムのこなれ感ある着こなし" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9355351/9355351_1_1748313747220_l.jpg", "weather_code": [1, 2], "comment": "透け感のあるニットとパンツの涼やかな着こなし。" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9289371/9289371_1_1746019825446_l.jpg", "weather_code": [1, 2], "comment": "シアー素材のレイヤードがお洒落なスタイル。" },
-			{ "max": 23, "min": 12, "url": "https://static-sb.dot-st.com/jp/ja/styling/9289649/9289649_1_1746025074130_l.jpg", "weather_code": [1], "comment": "ストライプシャツとバルーンスカートの組み合わせが可愛い" },
-			{ "max": 23, "min": 15, "url": "https://static-sb.dot-st.com/jp/ja/styling/9289368/9289368_1_1746019777489_l.jpg", "weather_code": [2, 3], "comment": "レースジャケットとシアー素材のスカートがクール。" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9272037/9272037_1_1746024518803_l.jpg", "weather_code": [1, 2, 3], "comment": "ボーダー柄とオレンジのスカートのコントラストがお洒落。" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9289366/9289366_1_1746019732705_l.jpg", "weather_code": [1, 2], "comment": "レースジャケットとシアー素材のレイヤードがモードな着こなし" },
-			{ "max": 23, "min": 13, "url": "https://static-sb.dot-st.com/jp/ja/styling/9216481/9216481_1_1743433182158_l.jpg", "weather_code": [1, 2], "comment": "デニムシャツとミニスカートの大人カジュアルコーデ" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9216448/9216448_1_1743432367360_l.jpg", "weather_code": [1, 2], "comment": "爽やかなストライプシャツとワイドパンツのきれいめカジュアル" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9216455/9216455_1_1743432479497_l.jpg", "weather_code": [1, 2], "comment": "レイヤードスタイルがおしゃれで素敵です。" },
-			{ "max": 23, "min": 12, "url": "https://static-sb.dot-st.com/jp/ja/styling/9095226/9095226_1_1738944561903_l.jpg", "weather_code": [2], "comment": "軽やかな素材感とジャケットの組み合わせが上品。" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9216467/9216467_1_1743432820882_l.jpg", "weather_code": [1, 2], "comment": "シアーシャツとレースパンツの軽やかな組み合わせ。" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143866/9143866_1_1740754769656_l.jpg", "weather_code": [1, 2], "comment": "ストライプ柄のワンピースとニットベストのレイヤードがおしゃれ。" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9122385/9122385_1_1739955413098_l.jpg", "weather_code": [1, 2], "comment": "ベロアとストライプの異素材ミックスがおしゃれ" },
-			{ "max": 23, "min": 12, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143846/9143846_1_1740754431290_l.jpg", "weather_code": [1, 2], "comment": "カーキシャツとストライプスカートの大人カジュアルコーデ" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143677/9143677_1_1740750849901_l.jpg", "weather_code": [1, 2], "comment": "上品なベージュとライトグレーのワントーンコーデ。" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143174/9143174_1_1740738053712_l.jpg", "weather_code": [1, 2], "comment": "黒のチュニックとレースパンツの甘辛MIXコーデ" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9075037/9075037_1_1738234868924_l.jpg", "weather_code": [1, 2], "comment": "爽やかなイエローとシアー袖が春らしいですね。" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078481/9078481_1_1738335332851_l.jpg", "weather_code": [1, 2], "comment": "フリルブラウスとデニムの甘辛ミックスコーデ。" },
-			{ "max": 23, "min": 13, "url": "https://static-sb.dot-st.com/jp/ja/styling/9005220/9005220_1_1735477200530_l.jpg", "weather_code": [1, 2], "comment": "ハンティングジャケットとデニムスカートの大人カジュアルコーデ" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710111/9710111_1_1761919104141_l.jpg", "weather_code": [1, 2, 3], "comment": "チェックシャツとワイドパンツの大人カジュアルコーデ" },
-			{ "max": 23, "min": 16, "url": "https://static-sb.dot-st.com/jp/ja/styling/9591960/9591960_1_1757556536716_l.jpg", "weather_code": [1, 2], "comment": "ラフなスウェットパンツとニットシャツの組み合わせがリラックス感を演出。" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569130/9569130_1_1756652091396_l.jpg", "weather_code": [1, 2], "comment": "モノトーンでまとめた大人カジュアルコーデ" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508415/9508415_1_1753973979068_l.jpg", "weather_code": [1, 2], "comment": "モノトーンでまとめたモードな着こなし" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508392/9508392_1_1753973271247_l.jpg", "weather_code": [1, 2], "comment": "軽やかな柄ジャケットが印象的" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9344818/9344818_1_1747910862849_l.jpg", "weather_code": [1, 2], "comment": "透かし編みベストとデニムのレイヤードがお洒落。" },
-			{ "max": 23, "min": 13, "url": "https://static-sb.dot-st.com/jp/ja/styling/9289638/9289638_1_1746024758747_l.jpg", "weather_code": [1, 2], "comment": "モノトーンでまとめたモードな着こなし。" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9289627/9289627_1_1746024425874_l.jpg", "weather_code": [1, 2], "comment": "メッシュパーカーとダメージデニムのモードスタイル" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9289499/9289499_1_1746022224480_l.jpg", "weather_code": [1, 2], "comment": "モノトーンでまとめた洗練された着こなし。" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9289475/9289475_1_1746021643505_l.jpg", "weather_code": [1, 2], "comment": "爽やかなシャツとTシャツのレイヤードが素敵。" },
-			{ "max": 23, "min": 12, "url": "https://static-sb.dot-st.com/jp/ja/styling/9211964/9211964_1_1743267774231_l.jpg", "weather_code": [2, 1], "comment": "メッシュパーカーとカーゴパンツの異素材ミックスが旬。" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9216211/9216211_1_1743425666846_l.jpg", "weather_code": [1, 2], "comment": "チェックシャツとワイドパンツの大人カジュアルコーデ" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9216203/9216203_1_1743425552919_l.jpg", "weather_code": [1, 2], "comment": "透かし編みカーディガンとロゴTのモノトーンコーデ" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9215754/9215754_1_1743411728243_l.jpg", "weather_code": [1, 2], "comment": "モノトーンでまとめたモードな着こなし。" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143768/9143768_1_1740752948271_l.jpg", "weather_code": [1, 2], "comment": "チェック柄カーディガンとパーカーのレイヤードが旬。" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143719/9143719_1_1740751522824_l.jpg", "weather_code": [1, 2], "comment": "シャツジャケットとTシャツのレイヤードがお洒落。" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078178/9078178_1_1738327669424_l.jpg", "weather_code": [1, 2], "comment": "チェックシャツとワッフルTのレイヤードがお洒落。" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9076595/9076595_1_1738297530606_l.jpg", "weather_code": [1, 2], "comment": "モノトーンコーデにニット帽がアクセント。" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9709455/9709455_1_1761907775591_l.jpg", "weather_code": [1, 2], "comment": "ボーダー柄Tシャツとパンツのカジュアルコーデ" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9637158/9637158_1_1759225954329_l.jpg", "weather_code": [2], "comment": "ブラウンの長袖にデニムでカジュアルに" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569413/9569413_1_1756645950535_l.jpg", "weather_code": [1], "comment": "メッシュカーディガンとデニムスカートの軽快コーデ" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9562069/9562069_1_1756353547520_l.jpg", "weather_code": [1, 2], "comment": "カジュアルなプリントTシャツとデニムの組み合わせが可愛い。" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9367198/9367198_1_1748701565687_l.jpg", "weather_code": [1], "comment": "軽やかなセットアップで元気いっぱい！" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9289459/9289459_1_1746021315081_l.jpg", "weather_code": [1, 2], "comment": "スポーティーなラグランTシャツが可愛い！" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9203190/9203190_1_1742963271751_l.jpg", "weather_code": [1, 2], "comment": "チェックシャツとカーゴパンツのカジュアルコーデ" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9136375/9136375_1_1740490121172_l.jpg", "weather_code": [1, 2, 3], "comment": "爽やかなミントグリーンが映えるカジュアルコーデ。" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9134146/9134146_1_1740407549733_l.jpg", "weather_code": [1, 2, 3], "comment": "スポーティーで元気なキッズコーデ！" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9141680/9141680_1_1740706740310_l.jpg", "weather_code": [1, 2], "comment": "メッシュニットとスウェットパンツのカジュアルコーデ" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9075430/9075430_1_1738243747578_l.jpg", "weather_code": [1, 2], "comment": "スポーティーなメッシュニットがおしゃれ！" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9075948/9075948_1_1738282874886_l.jpg", "weather_code": [1, 2], "comment": "淡いピンクのロンTとグレーのワイドパンツの組み合わせが可愛い。" },
-			{ "max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/5408111/5408111_1_20220404210239_l.jpg", "weather_code": [3], "comment": "モノトーンコーデがおしゃれで素敵です。" },
-			{ "max": 22, "min": 13, "url": "https://static-sb.dot-st.com/jp/ja/styling/9637856/9637856_1_1759241570622_l.jpg", "weather_code": [1, 2], "comment": "鮮やかな赤ニットとシアー素材のスカートの組み合わせが素敵。" },
-			{ "max": 22, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710115/9710115_1_1761919151143_l.jpg", "weather_code": [1, 2, 3], "comment": "落ち着いた色合いのチェックシャツが大人っぽい。" },
-			{ "max": 21, "min": 10, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569721/9569721_1_1756651931945_l.jpg", "weather_code": [1, 2], "comment": "シックな色合いで大人っぽい着こなし。" },
-			{ "max": 21, "min": 12, "url": "https://static-sb.dot-st.com/jp/ja/styling/9289655/9289655_1_1746025151936_l.jpg", "weather_code": [1], "comment": "シアー素材のチェック柄トップスが個性的。" },
-			{ "max": 21, "min": 12, "url": "https://static-sb.dot-st.com/jp/ja/styling/9289652/9289652_1_1746025094322_l.jpg", "weather_code": [1, 2], "comment": "レースキャミとシャツのレイヤードがお洒落。" },
-			{ "max": 21, "min": 12, "url": "https://static-sb.dot-st.com/jp/ja/styling/9216466/9216466_1_1743432805622_l.jpg", "weather_code": [1, 2], "comment": "軽やかなシアー素材で涼しげな印象。" },
-			{ "max": 21, "min": 12, "url": "https://static-sb.dot-st.com/jp/ja/styling/9761269/9761269_1_1763975653409_l.jpg", "weather_code": [1, 2], "comment": "ニットとブルゾンのレイヤードがお洒落ですね。" },
-			{ "max": 21, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9568834/9568834_1_1756651770751_l.jpg", "weather_code": [1, 2], "comment": "セットアップで統一感のある、クールな着こなし。" },
-			{ "max": 21, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143851/9143851_1_1740754523559_l.jpg", "weather_code": [2], "comment": "モノトーンコーデにミニショルダーが映える。" },
-			{ "max": 21, "min": 12, "url": "https://static-sb.dot-st.com/jp/ja/styling/9637025/9637025_1_1759223917981_l.jpg", "weather_code": [1, 2], "comment": "アクティブな印象のカジュアルコーデ2110" },
-			{ "max": 21, "min": 10, "url": "https://static-sb.dot-st.com/jp/ja/styling/9361756/9361756_1_1748519150560_l.jpg", "weather_code": [1, 2], "comment": "モノトーンコーデにカーゴパンツでアクセントを" },
-			{ "max": 21, "min": 12, "url": "https://static-sb.dot-st.com/jp/ja/styling/9203186/9203186_1_1742963165664_l.jpg", "weather_code": [1, 2], "comment": "スポーティーな上下で元気いっぱい！" },
-			{ "max": 20, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9765536/9765536_1_1764146650495_l.jpg", "weather_code": [4, 2], "comment": "ファー付きパーカーとフレアデニムのカジュアルコーデ" },
-			{ "max": 20, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078495/9078495_1_1738335562653_l.jpg", "weather_code": [1, 2], "comment": "ブルーのニットとデニムのカジュアルコーデ" },
-			{ "max": 20, "min": 10, "url": "https://static-sb.dot-st.com/jp/ja/styling/9009360/9009360_1_1735653204370_l.jpg", "weather_code": [1, 2, 4], "comment": "ラメ感とシャギー素材の組み合わせが可愛い。" },
-			{ "max": 20, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9005213/9005213_1_1735477046283_l.jpg", "weather_code": [2, 4], "comment": "ニットとプリーツスカートの組み合わせが可愛い。" },
-			{ "max": 20, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9741150/9741150_1_1763110859742_l.jpg", "weather_code": [2], "comment": "モノトーンでまとめた大人カジュアルコーデ" },
-			{ "max": 20, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9604231/9604231_1_1758028645160_l.jpg", "weather_code": [1, 2], "comment": "ニットポロとワイドパンツの大人カジュアルコーデ" },
-			{ "max": 20, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9637844/9637844_1_1759241460991_l.jpg", "weather_code": [1, 2], "comment": "秋らしいチェック柄とベロア素材の組み合わせが素敵。" },
-			{ "max": 20, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143834/9143834_1_1740754156137_l.jpg", "weather_code": [2], "comment": "カジュアルなスウェットにきれいめパンツを合わせた大人カジュアルコーデ。" },
-			{ "max": 20, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143658/9143658_1_1740750615046_l.jpg", "weather_code": [1, 2], "comment": "ブルーのニットと白パンツの爽やかな組み合わせが素敵です。" },
-			{ "max": 20, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9709550/9709550_1_1761909598106_l.jpg", "weather_code": [2, 4], "comment": "カモフラ柄パーカーとミニスカートの甘辛MIXコーデ" },
-			{ "max": 20, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078357/9078357_1_1738331927495_l.jpg", "weather_code": [2, 3], "comment": "襟付きスウェットでカジュアルながらも上品に。" },
-			{ "max": 20, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9075444/9075444_1_1738244341066_l.jpg", "weather_code": [1, 2], "comment": "カジュアルなスウェットとパンツの組み合わせが可愛い。" },
-			{ "max": 20, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9714121/9714121_1_1762090771679_l.jpg", "weather_code": [1, 2, 3, 4], "comment": "スウェットとワイドパンツのラフな着こなし" },
-			{ "max": 19, "min": 8, "url": "https://static-sb.dot-st.com/jp/ja/styling/9762532/9762532_1_1764038218993_l.jpg", "weather_code": [1, 2], "comment": "ニットとスカートの淡い色合いが優しい印象。" },
-			{ "max": 19, "min": 8, "url": "https://static-sb.dot-st.com/jp/ja/styling/9765619/9765619_1_1764148989487_l.jpg", "weather_code": [1, 2], "comment": "ゆったりニットとプリーツスカートの大人カジュアル" },
-			{ "max": 19, "min": 8, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710353/9710353_1_1761922779095_l.jpg", "weather_code": [1, 2], "comment": "ざっくりニットとワイドデニムのこなれ感" },
-			{ "max": 19, "min": 8, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710326/9710326_1_1761922591436_l.jpg", "weather_code": [2, 4], "comment": "ラフなスウェットとコーデュロイパンツの組み合わせが可愛い。" },
-			{ "max": 19, "min": 8, "url": "https://static-sb.dot-st.com/jp/ja/styling/9582655/9582655_1_1757204156514_l.jpg", "weather_code": [1, 2], "comment": "ニットベストとパーカーのレイヤードがおしゃれ。" },
-			{ "max": 19, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9637993/9637993_1_1759244204703_l.jpg", "weather_code": [2], "comment": "モードなモノトーンコーデがお洒落。" },
-			{ "max": 19, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9637423/9637423_1_1759233363961_l.jpg", "weather_code": [1, 2], "comment": "デニムベストとボーダーのレイヤードがおしゃれ。" },
-			{ "max": 19, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143861/9143861_1_1740754693246_l.jpg", "weather_code": [1, 2], "comment": "パステルカラーのニットとデニムスカートの大人カジュアルコーデ" },
-			{ "max": 19, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143832/9143832_1_1740754133431_l.jpg", "weather_code": [1, 2, 3], "comment": "ラメニットとチノパンツの大人カジュアルコーデ" },
-			{ "max": 19, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078480/9078480_1_1738335328552_l.jpg", "weather_code": [1, 2, 3], "comment": "淡いイエローのトップスとベージュ의 パンツで柔らかい印象に。" },
-			{ "max": 19, "min": 8, "url": "https://static-sb.dot-st.com/jp/ja/styling/9069721/9069721_1_1738056040653_l.jpg", "weather_code": [2, 4], "comment": "スウェットとシアーワンピースの異素材MIXがおしゃれ。" },
-			{ "max": 19, "min": 8, "url": "https://static-sb.dot-st.com/jp/ja/styling/8971854/8971854_1_1734314704292_l.jpg", "weather_code": [1, 2], "comment": "モノトーンコーデにプリーツスカートが映える" },
-			{ "max": 19, "min": 8, "url": "https://static-sb.dot-st.com/jp/ja/styling/8971828/8971828_1_1734314264687_l.jpg", "weather_code": [2, 3], "comment": "ニットとスカートの異素材MIXがおしゃれ。" },
-			{ "max": 19, "min": 8, "url": "https://static-sb.dot-st.com/jp/ja/styling/9005207/9005207_1_1735476730601_l.jpg", "weather_code": [1, 2], "comment": "ブルーのニットと黒のパンツで大人カジュアルに。" },
-			{ "max": 19, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/8971903/8971903_1_1734315418538_l.jpg", "weather_code": [1, 2, 3], "comment": "パール付きニットとワイドパンツの大人カジュアルコーデ" },
-			{ "max": 19, "min": 8, "url": "https://static-sb.dot-st.com/jp/ja/styling/9005199/9005199_1_1735476582765_l.jpg", "weather_code": [1, 2], "comment": "ニットとスカートのチェック柄が大人可愛い着こなし。" },
-			{ "max": 19, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9751260/9751260_1_1763537605582_l.jpg", "weather_code": [1, 2], "comment": "ノルディック柄ニットとバギーデニムの組み合わせが可愛い。" },
-			{ "max": 19, "min": 8, "url": "https://static-sb.dot-st.com/jp/ja/styling/9763551/9763551_1_1764067575460_l.jpg", "weather_code": [1, 2], "comment": "ノルディック柄ニットが温かみのある着こなし" },
-			{ "max": 19, "min": 8, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710327/9710327_1_1761922602406_l.jpg", "weather_code": [2, 3], "comment": "ニットとコーデュロイの温かみある組み合わせ" },
-			{ "max": 19, "min": 10, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710109/9710109_1_1761919068919_l.jpg", "weather_code": [1, 2], "comment": "スウェットとパンツのラフな組み合わせが好印象。" },
-			{ "max": 19, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9637971/9637971_1_1759243573251_l.jpg", "weather_code": [1, 2], "comment": "チェックシャツとスウェットのカジュアルコーデ。" },
-			{ "max": 19, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440400/9440400_1_1751291596864_l.jpg", "weather_code": [1, 2], "comment": "ストリート感のあるボーダー柄パーカーコーデ" },
-			{ "max": 19, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9212241/9212241_1_1743295223260_l.jpg", "weather_code": [1, 2], "comment": "モードな雰囲気のモノトーンコーデ。" },
-			{ "max": 19, "min": 8, "url": "https://static-sb.dot-st.com/jp/ja/styling/9216296/9216296_1_1743427489531_l.jpg", "weather_code": [1, 2, 3], "comment": "パーカーとデニムのシンプルコーデ" },
-			{ "max": 19, "min": 8, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143136/9143136_1_1740749839960_l.jpg", "weather_code": [1, 2], "comment": "マスタードカラーのカーディガンがアクセントの大人カジュアル" },
-			{ "max": 19, "min": 8, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143608/9143608_1_1740749362255_l.jpg", "weather_code": [1, 2], "comment": "カジュアルながら洗練された大人の休日スタイル。" },
-			{ "max": 19, "min": 8, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078183/9078183_1_1738327761815_l.jpg", "weather_code": [1, 2, 3], "comment": "チェックシャツとワッフルTのレイヤードがこなれ感" },
-			{ "max": 19, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078173/9078173_1_1738327564388_l.jpg", "weather_code": [1, 2], "comment": "鮮やかなブルーのスウェットセットアップが目を引く。" },
-			{ "max": 19, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078170/9078170_1_1738327525005_l.jpg", "weather_code": [1, 2], "comment": "スウェットのセットアップでリラックス感のある着こなし。" },
-			{ "max": 19, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078440/9078440_1_1738334263953_l.jpg", "weather_code": [1], "comment": "白Tと緑ニット帽のコントラストが映える。" },
-			{ "max": 19, "min": 8, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078168/9078168_1_1738327484344_l.jpg", "weather_code": [2], "comment": "リラックス感のあるセットアップがおしゃれ。" },
-			{ "max": 19, "min": 10, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078166/9078166_1_1738327290409_l.jpg", "weather_code": [2], "comment": "スポーティーなロゴスウェットでリラックス感のある着こなし。" },
-			{ "max": 19, "min": 8, "url": "https://static-sb.dot-st.com/jp/ja/styling/9005290/9005290_1_1735478776801_l.jpg", "weather_code": [1, 2, 3], "comment": "シックな色合いでまとめた大人カジュアルスタイル。" },
-			{ "max": 19, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9765105/9765105_1_1764135629882_l.jpg", "weather_code": [1, 2], "comment": "90's風のロゴが可愛いスウェットコーデ" },
-			{ "max": 19, "min": 8, "url": "https://static-sb.dot-st.com/jp/ja/styling/9764881/9764881_1_1764130004008_l.jpg", "weather_code": [1, 2], "comment": "スポーティーなトレーナーとパンツの組み合わせ。" },
-			{ "max": 19, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9709896/9709896_1_1761916006430_l.jpg", "weather_code": [1, 2], "comment": "カジュアルな着こなしが可愛い！" },
-			{ "max": 19, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9138689/9138689_1_1740577010265_l.jpg", "weather_code": [1, 2], "comment": "白のロゴTとデニムのカジュアルコーデ" },
-			{ "max": 19, "min": 8, "url": "https://static-sb.dot-st.com/jp/ja/styling/9009448/9009448_1_1735656788086_l.jpg", "weather_code": [1, 2], "comment": "パープルスウェットとデニムのカジュアルコーデ" },
-			{ "max": 19, "min": 8, "url": "https://static-sb.dot-st.com/jp/ja/styling/9008311/9008311_1_1735617259699_l.jpg", "weather_code": [1, 2], "comment": "白パーカーとデニムのカジュアルコーデ" },
-			{ "max": 19, "min": 8, "url": "https://static-sb.dot-st.com/jp/ja/styling/8979267/8979267_1_1734566025297_l.jpg", "weather_code": [1, 2], "comment": "赤のトレーナーとデニムの組み合わせが可愛い" },
-			{ "max": 18, "min": 7, "url": "https://static-sb.dot-st.com/jp/ja/styling/9765602/9765602_1_1764148399993_l.jpg", "weather_code": [2, 4], "comment": "深みのある色合いで上品な秋冬コーデ" },
-			{ "max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9637506/9637506_1_1759234782647_l.jpg", "weather_code": [1, 2], "comment": "黒のスウェットにデニムでカジュアルコーデ" },
-			{ "max": 18, "min": 7, "url": "https://static-sb.dot-st.com/jp/ja/styling/9003483/9003483_7_1735425334715_l.jpg", "weather_code": [2, 4], "comment": "スウェットとニット帽でアクティブな冬コーデ" },
-			{ "max": 15, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569703/9569703_1_1756651562420_l.jpg", "weather_code": [1, 2], "comment": "ブラックのセットアップが都会的でクール。" },
-			{ "max": 15, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143648/9143648_1_1740750227737_l.jpg", "weather_code": [1, 2], "comment": "ダメージデニムのセットアップがワイルドでかっこいい。" },
-			{ "max": 15, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9748499/9748499_1_1763436455991_l.jpg", "weather_code": [1, 2], "comment": "シックな黒コーデにファーハットがアクセント" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9765620/9765620_1_1764148999872_l.jpg", "weather_code": [1, 2, 4], "comment": "スポーティーなブルゾンとワイドパンツの大人カジュアルコーデ" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9733524/9733524_1_1762821622216_l.jpg", "weather_code": [1, 2], "comment": "フェイクレザーのジャケットがクールな着こなし。" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9744811/9744811_1_1763279432772_l.jpg", "weather_code": [1, 2], "comment": "シャギーニットカーディガンとコーデュロイパンツ의 温かみのあるコーデ。" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9765613/9765613_1_1764148817016_l.jpg", "weather_code": [1, 2], "comment": "ワークジャケットとコーデュロイパンツの大人カジュアルコーデ" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9731770/9731770_1_1762745427159_l.jpg", "weather_code": [1, 2, 3, 4], "comment": "デニムとボア의 異素材MIXがおしゃれなジャケットスタイル" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9709863/9709863_1_1761915554344_l.jpg", "weather_code": [2, 4], "comment": "ブルゾンとスカート의 異素材MIXがおしゃれ。" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710347/9710347_1_1761922720038_l.jpg", "weather_code": [2, 3], "comment": "シックな色合いと素材感がお洒落な着こなし。" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710346/9710346_1_1761922719019_l.jpg", "weather_code": [1, 2], "comment": "シックな色合いでまとめた大人っぽい着こなし。" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710093/9710093_1_1761918814058_l.jpg", "weather_code": [1, 2], "comment": "異素材ミックスのカーディガンが個性的で素敵" },
-			{ "max": 14, "min": 7, "url": "https://static-sb.dot-st.com/jp/ja/styling/9637989/9637989_1_1759244029893_l.jpg", "weather_code": [1, 2], "comment": "デニムジャケットとワイドパンツのセットアップがお洒落。" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569745/9569745_1_1756652381217_l.jpg", "weather_code": [1, 2], "comment": "イエローカーディガンが主役のカジュアルコーデ" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143864/9143864_1_1740754747389_l.jpg", "weather_code": [1, 2], "comment": "フリルブラウスとファーブルゾンの甘辛MIXコーデ" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078492/9078492_1_1738335465485_l.jpg", "weather_code": [1, 2], "comment": "ラメカーディガンとフリルスカート의 甘辛ミックスコーデ" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9075559/9075559_1_1738248407978_l.jpg", "weather_code": [2, 1], "comment": "モノトーンコーデに青のバッグが映える" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078455/9078455_1_1738334760185_l.jpg", "weather_code": [1, 2], "comment": "ネイビーのコートとデニムの大人カジュアルコーデ" },
-			{ "max": 14, "min": 7, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078478/9078478_1_1738335288092_l.jpg", "weather_code": [1, 2], "comment": "フェイクレザーのジャケットがクールな着こなし。" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9757404/9757404_1_1763785658839_l.jpg", "weather_code": [1, 2], "comment": "ブラウンのニットと黒パンツの大人カジュアルコーデ" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9689182/9689182_1_1761202956868_l.jpg", "weather_code": [1, 2, 3], "comment": "コーデュロイ素材のシャツジャケットが秋らしい着こなし。" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9717448/9717448_1_1762241595871_l.jpg", "weather_code": [1, 2, 4], "comment": "レザーライダースがクールな大人カジュアル。" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9763903/9763903_1_1764080810065_l.jpg", "weather_code": [2, 4], "comment": "落ち着いた色合いで大人っぽい着こなし。" },
-			{ "max": 14, "min": 7, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710108/9710108_1_1761919033278_l.jpg", "weather_code": [1, 2], "comment": "コーデュロイ素材のセットアップが大人っぽい。" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710107/9710107_1_1761918986689_l.jpg", "weather_code": [1, 2], "comment": "コーデュロイジャケットとスウェットパンツの大人カジュアルコーデ" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710234/9710234_1_1761921293469_l.jpg", "weather_code": [2, 1], "comment": "チェック柄のCPOジャケットとスラックスで大人カジュアルな着こなし。" },
-			{ "max": 14, "min": 7, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710102/9710102_1_1761918945933_l.jpg", "weather_code": [1, 2], "comment": "コーデュロイジャケットとスラックスの大人カジュアルコーデ" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569729/9569729_1_1756652059932_l.jpg", "weather_code": [1, 2], "comment": "セットアップで決めたワークスタイルがお洒落。" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569643/9569643_1_1756650440159_l.jpg", "weather_code": [1, 2], "comment": "カバーオールとワイドパンツ의 大人カジュアルコーデ" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569641/9569641_1_1756651905505_l.jpg", "weather_code": [1, 2, 3], "comment": "ナイロンジャケットとワイドパンツのカジュアルコーデ" },
-			{ "max": 14, "min": 7, "url": "https://static-sb.dot-st.com/jp/ja/styling/9563837/9563837_1_1756651593147_l.jpg", "weather_code": [1, 2], "comment": "カバーオールセットアップで統一感のある着こなし" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9568840/9568840_1_1756651291272_l.jpg", "weather_code": [1, 2], "comment": "ダークトーンでまとめた大人カジュアルコーデ" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508395/9508395_1_1753973421400_l.jpg", "weather_code": [1, 2], "comment": "ベロアシャツとワイドパンツのモードな着こなし。" },
-			{ "max": 14, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508387/9508387_1_1753973112352_l.jpg", "weather_code": [1, 2], "comment": "モノトーンでまとめたモードな着こなし。" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9365604/9365604_1_1748658190520_l.jpg", "weather_code": [1, 2], "comment": "シアーシャツとワイドデニムのモードな着こなし。" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9215891/9215891_1_1743416362889_l.jpg", "weather_code": [1, 2], "comment": "ジャケットとデニムのラフな着こなしが素敵" },
-			{ "max": 14, "min": 7, "url": "https://static-sb.dot-st.com/jp/ja/styling/9216035/9216035_1_1743420527965_l.jpg", "weather_code": [1, 2, 3], "comment": "スポーティーなブルゾンとデニムの好相性。" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143814/9143814_1_1740753708757_l.jpg", "weather_code": [2], "comment": "アニマル柄カーディガンと迷彩パンツのワイルドコーデ" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9136883/9136883_1_1740753146859_l.jpg", "weather_code": [1, 2], "comment": "クールなレザースタイルが個性的。" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078180/9078180_1_1738327696429_l.jpg", "weather_code": [1, 2, 3], "comment": "デニムシャツとカーゴパンツのワントーンコーデ。" },
-			{ "max": 14, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078181/9078181_1_1738327733143_l.jpg", "weather_code": [1, 2, 3], "comment": "ミリタリーテイストのセットアップが都会的。" },
-			{ "max": 14, "min": 7, "url": "https://static-sb.dot-st.com/jp/ja/styling/9009413/9009413_1_1735655245775_l.jpg", "weather_code": [1, 2], "comment": "フォーマルな装いが都会的で洗練されています。" },
-			{ "max": 14, "min": 3, "url": "https://static-sb.dot-st.com/jp/ja/styling/9009304/9009304_1_1735651474724_l.jpg", "weather_code": [2, 4], "comment": "ブルゾンとデニムの大人カジュアルコーデ" },
-			{ "max": 14, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9009296/9009296_1_1735651320050_l.jpg", "weather_code": [2], "comment": "ファーブルゾンとニット의 異素材ミックスがお洒落。" },
-			{ "max": 14, "min": 3, "url": "https://static-sb.dot-st.com/jp/ja/styling/9005304/9005304_1_1735479016089_l.jpg", "weather_code": [1, 2], "comment": "ダメージデニムシャツとレザーパンツのワイルドな着こなし。" },
-			{ "max": 14, "min": 7, "url": "https://static-sb.dot-st.com/jp/ja/styling/9765419/9765419_1_1764144698061_l.jpg", "weather_code": [1, 2, 4], "comment": "赤のカーディガンとデニムの組み合わせが可愛い。" },
-			{ "max": 14, "min": 7, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710341/9710341_1_1761922686669_l.jpg", "weather_code": [1, 2, 3], "comment": "カジュアルコーデがおしゃれ！" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9709319/9709319_1_1761904303331_l.jpg", "weather_code": [2, 4], "comment": "カーキのキルティングセットアップがおしゃれ" },
-			{ "max": 14, "min": 3, "url": "https://static-sb.dot-st.com/jp/ja/styling/9635307/9635307_1_1759155467843_l.jpg", "weather_code": [1, 2, 3], "comment": "爽やかな色合いのブルゾンが春らしい着こなし" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9628283/9628283_1_1758857893562_l.jpg", "weather_code": [1, 2, 3], "comment": "軽やかなブルゾンとカーゴパンツの組み合わせがアクティブ！" },
-			{ "max": 14, "min": 7, "url": "https://static-sb.dot-st.com/jp/ja/styling/9139027/9139027_1_1740614451541_l.jpg", "weather_code": [1, 2], "comment": "カジュアルなオーバーオールとスウェットの組み合わせが可愛い。" },
-			{ "max": 14, "min": 7, "url": "https://static-sb.dot-st.com/jp/ja/styling/9075436/9075436_1_1738244075846_l.jpg", "weather_code": [1, 2, 3], "comment": "ふわふわカーデとデニムスカートの甘辛MIXコーデ" },
-			{ "max": 14, "min": 7, "url": "https://static-sb.dot-st.com/jp/ja/styling/9009358/9009358_3_1735653321418_l.jpg", "weather_code": [2, 4], "comment": "ふわふわパーカーとプリーツスカート의 甘辛MIXコーデ" },
-			{ "max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/8535318/8535318_1_1719757492669_l.jpg", "weather_code": [1, 3, 2], "comment": "都会的なレインコートスタイルがクール！" },
-			{ "max": 13, "min": 3, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078488/9078488_1_1738335414978_l.jpg", "weather_code": [1, 2, 3], "comment": "トレンチコートとデニムの大人カジュアルコーデ" },
-			{ "max": 13, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9736880/9736880_1_1762938281813_l.jpg", "weather_code": [1, 2], "comment": "クールな着こなし、都会的な印象。" },
-			{ "max": 13, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710267/9710267_1_1761921905267_l.jpg", "weather_code": [1, 2, 3, 4], "comment": "ボアジャケットとリュックでアクティブな印象に" },
-			{ "max": 13, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9212260/9212260_1_1743295514393_l.jpg", "weather_code": [1, 2], "comment": "レースブルゾンとスタッズデニムのモードな着こなし。" },
-			{ "max": 13, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9009310/9009310_1_1735651670378_l.jpg", "weather_code": [2, 4], "comment": "ニットとブルゾン의 異素材ミックスがお洒落。" },
-			{ "max": 13, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9003093/9003093_1_1735393423765_l.jpg", "weather_code": [1, 2, 3], "comment": "ダークトーンでまとめた大人カジュアルコーデ" },
-			{ "max": 11, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9643364/9643364_3_1759459774518_l.jpg", "weather_code": [1, 2, 3], "comment": "クールなレザージャケットとニットスカートの異素材MIXコーデ" },
-			{ "max": 6, "min": -1, "url": "https://static-sb.dot-st.com/jp/ja/styling/9765526/9765526_1_1764146367734_l.jpg", "weather_code": [2, 4], "comment": "ダウンジャケットとミニスカート의 甘辛MIXコーデ" },
-			{ "max": 6, "min": -3, "url": "https://static-sb.dot-st.com/jp/ja/styling/8988367/8988367_1_1734868323233_l.jpg", "weather_code": [2, 4], "comment": "軽やかな白コートとワイドパンツの異素材ミックスコーデ" },
-			{ "max": 6, "min": -3, "url": "https://static-sb.dot-st.com/jp/ja/styling/9007086/9007086_1_1735555759843_l.jpg", "weather_code": [2, 4], "comment": "ダウンジャケットとニットのあったかコーデ" },
-			{ "max": 6, "min": -3, "url": "https://static-sb.dot-st.com/jp/ja/styling/9765089/9765089_1_1764135017736_l.jpg", "weather_code": [2, 4], "comment": "鮮やかな赤のブルゾンが目を引く冬コーデ" },
-			{ "max": 6, "min": -3, "url": "https://static-sb.dot-st.com/jp/ja/styling/9828173/9828173_1_1766711838147_l.jpg", "weather_code": [1, 2, 3, 4], "comment": "ダウンジャケットとロングワンピースのあったかコーデ" },
-			{ "max": 5, "min": -2, "url": "https://static-sb.dot-st.com/jp/ja/styling/9009397/9009397_1_1735654221976_l.jpg", "weather_code": [1, 2, 4], "comment": "ファーブルゾンとバンドTでクールな冬コーデ" },
-			{ "max": 5, "min": -4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9755005/9755005_1_1763692069810_l.jpg", "weather_code": [2, 4], "comment": "防寒性の高いダウンジャケットとカーゴパンツの組み合わせ。" },
-			{ "max": 5, "min": -2, "url": "https://static-sb.dot-st.com/jp/ja/styling/9843475/9843475_1_1767540086096_l.jpg", "weather_code": [4, 2], "comment": "ダウンジャケットとスウェットのカジュアルコーデ" },
-			{ "max": 5, "min": -4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9888290/9888290_1_1769437933754_l.jpg", "weather_code": [2, 4], "comment": "カラフルで遊び心のある冬コーデ" },
-			{ "max": 4, "min": -3, "url": "https://static-sb.dot-st.com/jp/ja/styling/9009309/9009309_1_1735651656441_l.jpg", "weather_code": [2, 4], "comment": "ダークトーンでまとめた都会的なダウンコーデ。" },
-			{ "max": 3, "min": -5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9818407/9818407_1_1766277390954_l.jpg", "weather_code": [4], "comment": "雪景色に映えるスキーウェアがお似合い！" },
-			{ "max": null, "min": null, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143868/9143868_1_1740754791012_l.jpg", "weather_code": [0], "comment": "-" }
+			{"max": 33, "min": 24, "url": "https://static-sb.dot-st.com/jp/ja/styling/9367278/9367278_1_1748703384895_l.jpg", "weather_code": [1, 2], "comment": "フリンジニットとワイドパンツの大人カジュアルコーデ"},
+			{"max": 33, "min": 24, "url": "https://static-sb.dot-st.com/jp/ja/styling/9216473/9216473_1_1743433009357_l.jpg", "weather_code": [1], "comment": "シンプルで快適なリブ素材のセットアップ。"},
+			{"max": 33, "min": 24, "url": "https://static-sb.dot-st.com/jp/ja/styling/9288960/9288960_1_1746010735314_l.jpg", "weather_code": [1, 2], "comment": "タンクトップとワイドパンツの夏コーデ"},
+			{"max": 33, "min": 24, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508273/9508273_1_1753971035417_l.jpg", "weather_code": [1], "comment": "爽やかな白キャミとデニムの甘辛ミックスコーデ。"},
+			{"max": 33, "min": 24, "url": "https://static-sb.dot-st.com/jp/ja/styling/8532570/8532570_1_1719663356924_l.jpg", "weather_code": [1], "comment": "ノースリーブとサンダルで夏らしく涼しげな装い。"},
+			{"max": 32, "min": 27, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569692/9569692_1_1756651421162_l.jpg", "weather_code": [1, 2], "comment": "ふわふわベストとパンツの甘辛 MIXコーデ"},
+			{"max": 32, "min": 23, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569725/9569725_1_1756652013341_l.jpg", "weather_code": [1, 2], "comment": "ノースリーブベストとデニムのカジュアルコーデ"},
+			{"max": 32, "min": 24, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508408/9508408_1_1753973847675_l.jpg", "weather_code": [1], "comment": "チェック柄のビスチェとフレアデニムの夏コーデ"},
+			{"max": 32, "min": 23, "url": "https://static-sb.dot-st.com/jp/ja/styling/9506044/9506044_1_1753905368319_l.jpg", "weather_code": [1, 2], "comment": "レースベストが涼しげで軽やかな印象。"},
+			{"max": 32, "min": 23, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508401/9508401_1_1753973587185_l.jpg", "weather_code": [1, 2], "comment": "クールなモノトーンコーデで個性を演出。"},
+			{"max": 32, "min": 23, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440535/9440535_1_1751295122518_l.jpg", "weather_code": [1, 2], "comment": "涼しげなノースリーブとリラックス感のあるパンツの組み合わせ。"},
+			{"max": 32, "min": 23, "url": "https://static-sb.dot-st.com/jp/ja/styling/9541386/9541386_1_1755489355535_l.jpg", "weather_code": [1, 2], "comment": "ノースリーブとベレー帽で涼しげな夏コーデ"},
+			{"max": 31, "min": 22, "url": "https://static-sb.dot-st.com/jp/ja/styling/9367275/9367275_1_1748703310056_l.jpg", "weather_code": [1], "comment": "レーストップスと柄パンツの異素材ミックスがおしゃれ。"},
+			{"max": 31, "min": 25, "url": "https://static-sb.dot-st.com/jp/ja/styling/9366693/9366693_1_1748687594596_l.jpg", "weather_code": [1], "comment": "涼しげなワンピースと麦わら帽子の夏コーデ"},
+			{"max": 31, "min": 24, "url": "https://static-sb.dot-st.com/jp/ja/styling/7600652/7600652_0_1687046158988_l.jpg", "weather_code": [1], "comment": "ノースリーブにパンツの涼やかコーデ"},
+			{"max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9289638/9289638_1_1746024758747_l.jpg", "weather_code": [1, 2], "comment": "ゆったりとした黒のセットアップがモードな雰囲気。"},
+			{"max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440028/9440028_1_1751281904392_l.jpg", "weather_code": [1], "comment": "涼しげな浴衣で夏のお出かけにぴったり！"},
+			{"max": 28, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9287057/9287057_1_1745972401121_l.jpg", "weather_code": [1], "comment": "元気いっぱい！夏らしい爽やかコーデ。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569746/9569746_1_1756652390135_l.jpg", "weather_code": [1, 2], "comment": "モノトーンコーデに映える柄スカートが個性的。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9568535/9568535_1_1756620206278_l.jpg", "weather_code": [1, 2], "comment": "明るいイエローのニットシャツとデニムの組み合わせが爽やか。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569744/9569744_1_1756652366972_l.jpg", "weather_code": [1], "comment": "メッシュニットとデニムのラフな組み合わせが夏らしい。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9568540/9568540_1_1756620252802_l.jpg", "weather_code": [1, 2], "comment": "コンパクトなニットポロとトラックパンツの大人カジュアルコーデ。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569721/9569721_1_1756651931945_l.jpg", "weather_code": [1, 2], "comment": "シックなシャツとワイドパンツের大人カジュアルコーデ。"},
+			{"max": 27, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508414/9508414_1_1753973942870_l.jpg", "weather_code": [1], "comment": "白の刺繍ブラウスとベージュのワイドパンツで爽やかな着こなし。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9451863/9451863_3_1751739291741_l.jpg", "weather_code": [1, 2], "comment": "明るいイエロースカートとロゴTの夏コーデ"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508165/9508165_1_1753968922801_l.jpg", "weather_code": [1], "comment": "モノトーンコーデにキャラクターバッグが映える！"},
+			{"max": 27, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508403/9508403_1_1753973718945_l.jpg", "weather_code": [1, 2], "comment": "涼やかな素材感とゆったりシルエットの組み合わせが夏らしい。"},
+			{"max": 27, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9486513/9486513_1_1753106698807_l.jpg", "weather_code": [1, 2], "comment": "モノトーンコーデにグラデーションパンツが映える。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9371910/9371910_5_1748885546184_l.jpg", "weather_code": [1, 2], "comment": "カジュアルなTシャツとワイドパンツのラフな着こなし。"},
+			{"max": 27, "min": 21, "url": "https://static-sb.dot-st.com/jp/ja/styling/9506043/9506043_1_1753905337122_l.jpg", "weather_code": [1], "comment": "フリル袖Tシャツとデニムのカジュアルコーデ"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440556/9440556_1_1751295533011_l.jpg", "weather_code": [1, 2], "comment": "肩出しニットがヘルシーで魅力的。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440505/9440505_1_1751294781624_l.jpg", "weather_code": [2, 4], "comment": "グレーのスウェットセットアップがリラックス感のあるスタイル。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9423513/9423513_1_1750693691728_l.jpg", "weather_code": [1, 2], "comment": "涼やかなサロペットにカーディガンを羽織り、上品な夏スタイル。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440222/9440222_1_1751287131196_l.jpg", "weather_code": [1, 3], "comment": "カジュアルなジャンスカにキャップでアクティブな印象に。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9436213/9436213_1_1751157789081_l.jpg", "weather_code": [1], "comment": "カジュアルなTシャツとワイドパンツでリラックス感のある着こなし。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440533/9440533_1_1751295099665_l.jpg", "weather_code": [1], "comment": "軽やかなニットとワイドパンツの大人カジュアルコーデ。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440531/9440531_1_1751295089533_l.jpg", "weather_code": [1], "comment": "カジュアルなロゴTと柄パンツの夏コーデ"},
+			{"max": 27, "min": 20, "url": "https://static-sb.dot-st.com/jp/ja/styling/9367279/9367279_1_1748703412019_l.jpg", "weather_code": [1, 2], "comment": "リネンパンツとニットの大人カジュアルコーデ"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9367212/9367212_1_1748701883519_l.jpg", "weather_code": [1, 2], "comment": "レースキャミとロゴTのレイヤードが涼しげ。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9363528/9363528_1_1748586208804_l.jpg", "weather_code": [1, 2], "comment": "ロゴTとロングスカートの大人カジュアルコーデ"},
+			{"max": 27, "min": 21, "url": "https://static-sb.dot-st.com/jp/ja/styling/9324339/9324339_1_1747238838302_l.jpg", "weather_code": [1, 2], "comment": "ネイビーTシャツとストライプパンツの爽やかコーデ"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9289655/9289655_1_1746025151936_l.jpg", "weather_code": [1], "comment": "シアー素材とカットアウトがおしゃれな着こなし。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9289644/9289644_1_1746024985216_l.jpg", "weather_code": [1], "comment": "モードな雰囲気のセットアップスタイル。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9272037/9272037_1_1746024518803_l.jpg", "weather_code": [1, 2], "comment": "モノトーンのストライプにオレンジのスカートが映える。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9216472/9216472_1_1743432959132_l.jpg", "weather_code": [1], "comment": "スポーティーなメッシュTシャツとモードなスカートの異素材MIXがお洒落。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9216468/9216468_1_1743432856479_l.jpg", "weather_code": [1, 2], "comment": "軽やかなブラウスと柄パンツの涼しげコーデ"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9216465/9216465_1_1743432798864_l.jpg", "weather_code": [1, 2], "comment": "スポーティーなTシャツとダメージデニムの相性抜群！"},
+			{"max": 27, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143846/9143846_1_1740754431290_l.jpg", "weather_code": [1, 2], "comment": "カーキシャツとストライプスカートの大人カジュアルコーデ"},
+			{"max": 27, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9637962/9637962_1_1759243385144_l.jpg", "weather_code": [1, 2], "comment": "シンプルTシャツとカーゴパンツのラフな着こなし。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9637958/9637958_1_1759243289885_l.jpg", "weather_code": [1, 2], "comment": "爽やかなブルーTシャツとカーゴパンツのラフな着こなし"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9591950/9591950_1_1757556318805_l.jpg", "weather_code": [1, 2], "comment": "チェック柄シャツとスウェットパンツのラフな着こなし。"},
+			{"max": 27, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9591940/9591940_1_1757556153118_l.jpg", "weather_code": [1, 2], "comment": "クロシェニットシャツとスウェットパンツのラフな組み合わせがこなれ感。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9591928/9591928_1_1757555984846_l.jpg", "weather_code": [1, 2], "comment": "ストライプシャツとスウェットパンツの爽やかカジュアルコーデ。"},
+			{"max": 27, "min": 20, "url": "https://static-sb.dot-st.com/jp/ja/styling/9591912/9591912_1_1757555596259_l.jpg", "weather_code": [1], "comment": "爽やかな白シャツとスウェットパンツのラフな着こなし。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9564692/9564692_1_1756455160312_l.jpg", "weather_code": [1, 2], "comment": "爽やかなストライプシャツとプリントTシャツの組み合わせが夏らしい。"},
+			{"max": 27, "min": 20, "url": "https://static-sb.dot-st.com/jp/ja/styling/9564661/9564661_1_1756454404186_l.jpg", "weather_code": [1, 2], "comment": "カジュアルなTシャツとデニムの定番コーデ"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508415/9508415_1_1753973979068_l.jpg", "weather_code": [1, 2], "comment": "モノトーンでまとめたモードな着こなし。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508335/9508335_1_1753972107549_l.jpg", "weather_code": [1], "comment": "遊び心のあるTシャツとワイドデニムのラフな着こなし。"},
+			{"max": 27, "min": 22, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508332/9508332_1_1753972007688_l.jpg", "weather_code": [1], "comment": "クールな色合いとリラックス感のあるシルエットが魅力的。"},
+			{"max": 27, "min": 20, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508327/9508327_1_1753971899358_l.jpg", "weather_code": [1], "comment": "ヴィンテージライクなTシャツとワイドデニムのラフな着こなし。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508313/9508313_1_1753971774847_l.jpg", "weather_code": [1], "comment": "ゆったりシルエットでリラックス感のある着こなし。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508303/9508303_1_1753971697699_l.jpg", "weather_code": [1], "comment": "白Tとデニムの爽やかカジュアルコーデ"},
+			{"max": 27, "min": 22, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508380/9508380_1_1753972901760_l.jpg", "weather_code": [1], "comment": "モードな雰囲気のシャツとパンツのセットアップスタイル。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440541/9440541_1_1751295215020_l.jpg", "weather_code": [1, 2], "comment": "モノトーンコーデにサンダルで夏らしさをプラス。"},
+			{"max": 27, "min": 21, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440520/9440520_1_1751294994429_l.jpg", "weather_code": [1], "comment": "リラックス感のあるTシャツとパンツの組み合わせが◎"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440392/9440392_1_1751291455751_l.jpg", "weather_code": [1, 2], "comment": "カーキTシャツとチェックシャツのレイヤードがこなれ感◎"},
+			{"max": 27, "min": 20, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440389/9440389_1_1751291337176_l.jpg", "weather_code": [1, 2], "comment": "チェック柄シャツとスウェットパンツのラフな組み合わせ。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440403/9440403_1_1751291641216_l.jpg", "weather_code": [1], "comment": "チェック柄シャツとデニムのカジュアルコーデ。"},
+			{"max": 27, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440399/9440399_1_1751291563721_l.jpg", "weather_code": [1, 2], "comment": "モノトーンコーデにワイドデニムが映える。"},
+			{"max": 27, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440397/9440397_1_1751291539456_l.jpg", "weather_code": [1], "comment": "爽やかな白シャツとデニムの夏コーデ"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9434641/9434641_1_1751084729894_l.jpg", "weather_code": [1, 2], "comment": "ラグラントップスとワイドデニムのカジュアルコーデ"},
+			{"max": 27, "min": 22, "url": "https://static-sb.dot-st.com/jp/ja/styling/9367221/9367221_1_1748702209223_l.jpg", "weather_code": [1], "comment": "白シャツとネイビーパンツの爽やかな夏コーデ"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9367225/9367225_1_1748702294555_l.jpg", "weather_code": [1, 2], "comment": "軽やかなシャツとパンツの爽やかコーデ。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9367229/9367229_1_1748702360736_l.jpg", "weather_code": [1], "comment": "清涼感のある白シャツとネイビーパンツの爽やかコーデ。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9366238/9366238_1_1748676489252_l.jpg", "weather_code": [1, 2], "comment": "開襟シャツとワイドパンツのラフな着こなし。"},
+			{"max": 27, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9367123/9367123_1_1748699956221_l.jpg", "weather_code": [1], "comment": "モノトーンでまとめた大人カジュアルコーデ。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9344814/9344814_1_1747910807453_l.jpg", "weather_code": [1, 2], "comment": "ストライプシャツとワイドパンツの爽やかモノトーンコーデ"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9344823/9344823_1_1747910941829_l.jpg", "weather_code": [1, 2], "comment": "メッシュシャツとカーゴパンツの夏コーデ"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9367042/9367042_1_1748697350871_l.jpg", "weather_code": [1], "comment": "ブラウンTシャツとカーキパンツの落ち着いた配色が大人っぽい。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9288013/9288013_1_1745989303354_l.jpg", "weather_code": [1], "comment": "リラックス感のある開襟シャツとパンツのセットアップコーデ。"},
+			{"max": 27, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9289634/9289634_1_1746024589556_l.jpg", "weather_code": [1], "comment": "シアーシャツとデニムの涼やかで都会的な装い。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9289627/9289627_1_1746024425874_l.jpg", "weather_code": [1, 2], "comment": "メッシュ素材が涼しげで、夏らしい着こなし。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9277596/9277596_1_1745591332571_l.jpg", "weather_code": [1, 3], "comment": "鮮やかなTシャツとカーゴパンツの組み合わせがスポーティーで夏らしい。"},
+			{"max": 27, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9288935/9288935_1_1746010085348_l.jpg", "weather_code": [1, 2], "comment": "シアーシャツと光沢感のあるインナーの組み合わせがクール。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9288903/9288903_1_1746009148256_l.jpg", "weather_code": [1], "comment": "ピグメント加工のTシャツとショーツでリラックス感のある着こなし。"},
+			{"max": 27, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9216219/9216219_1_1743425765426_l.jpg", "weather_code": [1], "comment": "シンプルで洗練されたモノトーンコーデ"},
+			{"max": 27, "min": 21, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569427/9569427_1_1756646347016_l.jpg", "weather_code": [1, 2], "comment": "爽やかなTシャツと軽やかなパーカーの組み合わせが素敵。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569413/9569413_1_1756645950535_l.jpg", "weather_code": [1], "comment": "メッシュカーディガンが涼しげで夏らしい！"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569346/9569346_1_1756644517297_l.jpg", "weather_code": [1, 2], "comment": "元気な黒Tとデニムスカートの組み合わせがキュート！"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9562069/9562069_1_1756353547520_l.jpg", "weather_code": [1, 2], "comment": "元気なロゴTシャツとデニムのカジュアルコーデ"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9507602/9507602_1_1753955353837_l.jpg", "weather_code": [1, 2], "comment": "グラフィックTシャツとデニムのカジュアルコーデ"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9486556/9486556_1_1753110806292_l.jpg", "weather_code": [1], "comment": "ボーダーTとデニムの爽やかカジュアルコーデ"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9507274/9507274_1_1753947385532_l.jpg", "weather_code": [1], "comment": "爽やかなTシャツとショートパンツの夏コーデ"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9500191/9500191_1_1753679356012_l.jpg", "weather_code": [1], "comment": "明るい色合いのTシャツとストライプ柄のボトムスで夏らしい装い。"},
+			{"max": 27, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440543/9440543_1_1751295303742_l.jpg", "weather_code": [1], "comment": "スポーティーなTシャツとデニムの夏コーデ"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440524/9440524_1_1751295025667_l.jpg", "weather_code": [1], "comment": "カジュアルなTシャツとショートパンツの組み合わせが夏らしい。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440469/9440469_1_1751293595839_l.jpg", "weather_code": [1], "comment": "白Tシャツと黒パンツのモノトーンコーデ"},
+			{"max": 27, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9372418/9372418_1_1748916500722_l.jpg", "weather_code": [1], "comment": "古着風Tシャツとリゾート柄ショーツで夏らしい元気なスタイル！"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9367198/9367198_1_1748701565687_l.jpg", "weather_code": [1], "comment": "軽やかなセットアップで夏のお出かけにぴったり！"},
+			{"max": 27, "min": 20, "url": "https://static-sb.dot-st.com/jp/ja/styling/9355564/9355564_1_1748319185319_l.jpg", "weather_code": [1], "comment": "スポーティーなセットアップで元気いっぱい！"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9366730/9366730_1_1748688449771_l.jpg", "weather_code": [1, 2], "comment": "元気なツインテールとプリーツスカートが可愛い！"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9287039/9287039_1_1745972002408_l.jpg", "weather_code": [1], "comment": "爽やかな白Tとデニムの組み合わせが夏らしい！"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9287825/9287825_1_1746014629264_l.jpg", "weather_code": [1, 3], "comment": "スポーティーなキャップとサンダルが夏らしい！"},
+			{"max": 27, "min": 19, "url": "https://static-sb.dot-st.com/jp/ja/styling/9254221/9254221_1_1744806061630_l.jpg", "weather_code": [1], "comment": "メッシュカーディガンとデニムの夏コーデ"},
+			{"max": 27, "min": 20, "url": "https://static-sb.dot-st.com/jp/ja/styling/9216046/9216046_1_1743420786509_l.jpg", "weather_code": [1], "comment": "元気な笑顔に映えるスポーティーコーデ"},
+			{"max": 27, "min": 20, "url": "https://static-sb.dot-st.com/jp/ja/styling/9215982/9215982_1_1743419425615_l.jpg", "weather_code": [1, 3], "comment": "スポーティーで元気なカジュアルコーデ。"},
+			{"max": 27, "min": 21, "url": "https://static-sb.dot-st.com/jp/ja/styling/9208306/9208306_1_1743142250496_l.jpg", "weather_code": [1], "comment": "爽やかな半袖Tシャツとデニムショートパンツの夏コーデ。"},
+			{"max": 27, "min": 20, "url": "https://static-sb.dot-st.com/jp/ja/styling/9419409/9419409_6_1750555587315_l.jpg", "weather_code": [1, 3], "comment": "フレンチスリーブとサンダルで涼やか夏コーデ"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508666/9508666_1_1754009456434_l.jpg", "weather_code": [1], "comment": "ペプラムデザインが可愛いベージュのトップスと黒パンツのコーデ"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9254612/9254612_1_1744818067239_l.jpg", "weather_code": [1], "comment": "シアーベストとチェック柄スカートの異素材MIXがおしゃれ。"},
+			{"max": 27, "min": 18, "url": "https://static-sb.dot-st.com/jp/ja/styling/9319927/9319927_1_1747124090926_l.jpg", "weather_code": [1], "comment": "グレーのセットアップが都会的でクール。"},
+			{"max": 27, "min": 20, "url": "https://static-sb.dot-st.com/jp/ja/styling/9441405/9441405_1_1751343903482_l.jpg", "weather_code": [1, 3], "comment": "白のペプラムトップスと黒のショートパンツのモノトーンコーデ"},
+			{"max": 24, "min": 15, "url": "https://static-sb.dot-st.com/jp/ja/styling/9345295/9345295_1_1747925031839_l.jpg", "weather_code": [1, 2], "comment": "リネンジャケットとスカートの大人カジュアルコーデ"},
+			{"max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710352/9710352_1_1761922778492_l.jpg", "weather_code": [1, 2], "comment": "モードな光沢シャツとレザー調スカートの着こなし。"},
+			{"max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710350/9710350_1_1761922749836_l.jpg", "weather_code": [1, 2], "comment": "ハイネックTとチェックシャツのレイヤードがお洒落。"},
+			{"max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710336/9710336_1_1761922659729_l.jpg", "weather_code": [1, 2], "comment": "軽やかなカーディガンとデニムのカジュアルコーデ"},
+			{"max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9637423/9637423_1_1759233363961_l.jpg", "weather_code": [1, 2], "comment": "デニムベストとボーダーのレイヤードが可愛い！"},
+			{"max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9637856/9637856_1_1759241570622_l.jpg", "weather_code": [1, 2], "comment": "鮮やかな赤ニットと黒スカートの大人配色コーデ。"},
+			{"max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569739/9569739_1_1756652249661_l.jpg", "weather_code": [1, 2], "comment": "モノトーンコーデにチェック柄が映える大人カジュアル"},
+			{"max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440539/9440539_2_1751295184763_l.jpg", "weather_code": [1, 2], "comment": "シアー袖とレーススカートが軽やかなブラックコーデ"},
+			{"max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9363117/9363117_1_1748578909691_l.jpg", "weather_code": [1, 2], "comment": "ラミー素材のシャツが軽やかな着こなしを演出。"},
+			{"max": 23, "min": 16, "url": "https://static-sb.dot-st.com/jp/ja/styling/9367271/9367271_1_1748703267230_l.jpg", "weather_code": [1, 2], "comment": "シアーシャツとワイドパンツの涼やかコーデ"},
+			{"max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9355351/9355351_1_1748313747220_l.jpg", "weather_code": [1], "comment": "透け感のあるニットとパンツの軽やかな組み合わせ。"},
+			{"max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9289393/9289393_1_1746020065172_l.jpg", "weather_code": [1, 2], "comment": "シアー素材とレースの透け感が上品なスタイル。"},
+			{"max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9289647/9289647_1_1746025027638_l.jpg", "weather_code": [1, 2], "comment": "シアーシャツとショートパンツの涼やかコーデ"},
+			{"max": 23, "min": 16, "url": "https://static-sb.dot-st.com/jp/ja/styling/9289652/9289652_1_1746025094322_l.jpg", "weather_code": [1, 2], "comment": "レースキャミとシャツのレイヤードが上品で素敵。"},
+			{"max": 23, "min": 16, "url": "https://static-sb.dot-st.com/jp/ja/styling/9289368/9289368_1_1746019777489_l.jpg", "weather_code": [1, 2], "comment": "レースジャケットとシアー素材のスカートがクールな装い。"},
+			{"max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9289366/9289366_1_1746019732705_l.jpg", "weather_code": [1, 2], "comment": "シアー素材のレイヤードが軽やかで素敵。"},
+			{"max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9216448/9216448_1_1743432367360_l.jpg", "weather_code": [1, 2], "comment": "爽やかなストライプシャツとワイドパンツのきれいめカジュアル。"},
+			{"max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9216455/9216455_1_1743432479497_l.jpg", "weather_code": [1, 2], "comment": "レイヤード風トップスとワイドパンツのモードな着こなし。"},
+			{"max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9216467/9216467_1_1743432820882_l.jpg", "weather_code": [1, 2], "comment": "透け感のあるシャツとレースパンツの軽やかな装い。"},
+			{"max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9075037/9075037_1_1738234868924_l.jpg", "weather_code": [1, 2], "comment": "イエローのニットと白スカートの爽やかコーデ"},
+			{"max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078481/9078481_1_1738335332851_l.jpg", "weather_code": [1, 2], "comment": "軽やかなフリルブラウスとデニムの大人カジュアルコーデ"},
+			{"max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9637971/9637971_1_1759243573251_l.jpg", "weather_code": [1, 2], "comment": "チェックシャツとスウェットのレイヤードがこなれ感◎"},
+			{"max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9568834/9568834_1_1756651770751_l.jpg", "weather_code": [1, 2], "comment": "ワークテイストのセットアップが都会的。"},
+			{"max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569703/9569703_1_1756651562420_l.jpg", "weather_code": [1, 2], "comment": "洗練されたセットアップスタイルが都会的。"},
+			{"max": 23, "min": 16, "url": "https://static-sb.dot-st.com/jp/ja/styling/9435705/9435705_1_1751121460248_l.jpg", "weather_code": [1], "comment": "涼やかな浴衣にチェーンネックレスが映える。"},
+			{"max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9365604/9365604_1_1748658190520_l.jpg", "weather_code": [1, 2], "comment": "シアーシャツとワイドデニムのモードな着こなし。"},
+			{"max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9289475/9289475_1_1746021643505_l.jpg", "weather_code": [1, 2], "comment": "爽やかなシャツとパンツのきれいめカジュアルコーデ。"},
+			{"max": 23, "min": 15, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143768/9143768_1_1740752948271_l.jpg", "weather_code": [2, 1], "comment": "メッシュカーディガンとパーカーのレイヤードがお洒落。"},
+			{"max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143719/9143719_1_1740751522824_l.jpg", "weather_code": [1, 2], "comment": "シャツジャケットとTシャツのレイヤードがお洒落。"},
+			{"max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078440/9078440_1_1738334263953_l.jpg", "weather_code": [1], "comment": "グリーンニット帽と白Tシャツのコントラストが効いています。"},
+			{"max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9076595/9076595_1_1738297530606_l.jpg", "weather_code": [2], "comment": "モノトーンコーデにニット帽がアクセント。"},
+			{"max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9709455/9709455_1_1761907775591_l.jpg", "weather_code": [1, 2], "comment": "ボーダー柄の長袖Tシャツとナイロンパンツのスポーティーコーデ"},
+			{"max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9203190/9203190_1_1742963271751_l.jpg", "weather_code": [1, 2], "comment": "爽やかなチェックシャツとカーゴパンツの組み合わせが都会的。"},
+			{"max": 23, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9136375/9136375_1_1740490121172_l.jpg", "weather_code": [1, 2, 3], "comment": "爽やかなミントカラーの長袖Tシャツが軽快な印象。"},
+			{"max": 23, "min": 16, "url": "https://static-sb.dot-st.com/jp/ja/styling/5408111/5408111_1_20220404210239_l.jpg", "weather_code": [3], "comment": "モノトーンコーデに遊び心のある傘がアクセント。"},
+			{"max": 22, "min": 15, "url": "https://static-sb.dot-st.com/jp/ja/styling/9637993/9637993_1_1759244204703_l.jpg", "weather_code": [1, 2], "comment": "モードなモノトーンコーデ。デザイン性が光る逸品。"},
+			{"max": 22, "min": 15, "url": "https://static-sb.dot-st.com/jp/ja/styling/9637977/9637977_4_1759243696431_l.jpg", "weather_code": [1, 2], "comment": "リブニットとデニムの大人カジュアルコーデ。"},
+			{"max": 22, "min": 13, "url": "https://static-sb.dot-st.com/jp/ja/styling/9637985/9637985_1_1759243842272_l.jpg", "weather_code": [1, 2], "comment": "モノトーンコーデが洗練された印象。"},
+			{"max": 22, "min": 13, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569738/9569738_1_1756652242657_l.jpg", "weather_code": [2, 4], "comment": "シアー素材とチェック柄の甘辛MIXコーデ"},
+			{"max": 22, "min": 13, "url": "https://static-sb.dot-st.com/jp/ja/styling/9289649/9289649_1_1746025074130_l.jpg", "weather_code": [1, 2], "comment": "ストライプシャツとバルーンスカートの甘辛MIXコーデ"},
+			{"max": 22, "min": 15, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143677/9143677_1_1740750849901_l.jpg", "weather_code": [1, 2], "comment": "上品なワントーンコーデで大人っぽく決まる。"},
+			{"max": 22, "min": 13, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143174/9143174_1_1740738053712_l.jpg", "weather_code": [1, 2], "comment": "黒のチュニックとレースパンツの甘辛ミックスコーデ"},
+			{"max": 22, "min": 15, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710115/9710115_1_1761919151143_l.jpg", "weather_code": [1, 2, 3], "comment": "落ち着いた色合いのチェックシャツが大人っぽい。"},
+			{"max": 22, "min": 12, "url": "https://static-sb.dot-st.com/jp/ja/styling/9591960/9591960_1_1757556536716_l.jpg", "weather_code": [1, 2], "comment": "リラックス感のあるスウェットパンツとニットシャツの組み合わせ。"},
+			{"max": 22, "min": 15, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569130/9569130_1_1756652091396_l.jpg", "weather_code": [1, 2], "comment": "モノトーンでまとめた大人カジュアルコーデ。"},
+			{"max": 22, "min": 12, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508387/9508387_1_1753973112352_l.jpg", "weather_code": [1, 2], "comment": "ストライプシャツとワイドパンツのモノトーンコーデ"},
+			{"max": 22, "min": 15, "url": "https://static-sb.dot-st.com/jp/ja/styling/9289499/9289499_1_1746022224480_l.jpg", "weather_code": [1, 2], "comment": "モノトーンでまとめた都会的な着こなし。"},
+			{"max": 22, "min": 15, "url": "https://static-sb.dot-st.com/jp/ja/styling/9216211/9216211_1_1743425666846_l.jpg", "weather_code": [1, 2], "comment": "チェックシャツとTシャツのレイヤードがお洒落。"},
+			{"max": 22, "min": 13, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078180/9078180_1_1738327696429_l.jpg", "weather_code": [1, 2, 3], "comment": "デニムシャツとカーゴパンツのカジュアルコーデ。"},
+			{"max": 22, "min": 15, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078183/9078183_1_1738327761815_l.jpg", "weather_code": [1, 2], "comment": "チェックシャツとカーゴパンツのラフな組み合わせがこなれ感◎"},
+			{"max": 22, "min": 14, "url": "https://static-sb.dot-st.com/jp/ja/styling/9568905/9568905_1_1756632134854_l.jpg", "weather_code": [1, 2], "comment": "爽やかな白コーデにキャップがアクセント！"},
+			{"max": 22, "min": 15, "url": "https://static-sb.dot-st.com/jp/ja/styling/9134146/9134146_1_1740407549733_l.jpg", "weather_code": [1, 2], "comment": "スポーティーで元気なキッズコーデ！"},
+			{"max": 22, "min": 13, "url": "https://static-sb.dot-st.com/jp/ja/styling/9075430/9075430_1_1738243747578_l.jpg", "weather_code": [1, 2], "comment": "元気なメッシュニットとデニムのカジュアルコーデ"},
+			{"max": 21, "min": 13, "url": "https://static-sb.dot-st.com/jp/ja/styling/9765613/9765613_1_1764148817016_l.jpg", "weather_code": [1, 2], "comment": "ワークジャケットとコーデュロイパンツのカジュアルコーデ"},
+			{"max": 21, "min": 12, "url": "https://static-sb.dot-st.com/jp/ja/styling/9637996/9637996_1_1759244329881_l.jpg", "weather_code": [1, 2], "comment": "シアー素材とビスチェのレイヤードが軽やかで素敵。"},
+			{"max": 21, "min": 12, "url": "https://static-sb.dot-st.com/jp/ja/styling/9557920/9557920_1_1756185359343_l.jpg", "weather_code": [1, 2], "comment": "淡いピンクのニットとベージュのパンツの優しい配色が素敵。"},
+			{"max": 21, "min": 12, "url": "https://static-sb.dot-st.com/jp/ja/styling/9289371/9289371_1_1746019825446_l.jpg", "weather_code": [1, 2], "comment": "シアー素材のレイヤードが涼しげで大人っぽい。"},
+			{"max": 21, "min": 15, "url": "https://static-sb.dot-st.com/jp/ja/styling/9216466/9216466_1_1743432805622_l.jpg", "weather_code": [1, 2], "comment": "軽やかなシアーシャツとフリルビスチェが涼しげで上品。"},
+			{"max": 21, "min": 13, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710111/9710111_1_1761919104141_l.jpg", "weather_code": [1, 2, 3], "comment": "チェック柄シャツとワイドパンツの大人カジュアルコーデ"},
+			{"max": 21, "min": 12, "url": "https://static-sb.dot-st.com/jp/ja/styling/9211964/9211964_1_1743267774231_l.jpg", "weather_code": [1, 2], "comment": "メッシュパーカーとカーゴパンツの異素材MIXがお洒落。"},
+			{"max": 21, "min": 12, "url": "https://static-sb.dot-st.com/jp/ja/styling/9216203/9216203_1_1743425552919_l.jpg", "weather_code": [1, 2], "comment": "透かし編みカーディガンとロゴTの大人カジュアルコーデ"},
+			{"max": 21, "min": 15, "url": "https://static-sb.dot-st.com/jp/ja/styling/9215754/9215754_1_1743411728243_l.jpg", "weather_code": [2], "comment": "モノトーンでまとめたストリートスタイルがクール。"},
+			{"max": 21, "min": 15, "url": "https://static-sb.dot-st.com/jp/ja/styling/9361756/9361756_1_1748519150560_l.jpg", "weather_code": [1, 2], "comment": "シャツとカーゴパンツのラフな着こなしが旬。"},
+			{"max": 21, "min": 15, "url": "https://static-sb.dot-st.com/jp/ja/styling/9365794/9365794_1_1748663293048_l.jpg", "weather_code": [1, 2], "comment": "黒地に赤のチェリー柄が可愛らしいワンピース。"},
+			{"max": 21, "min": 12, "url": "https://static-sb.dot-st.com/jp/ja/styling/9075948/9075948_1_1738282874886_l.jpg", "weather_code": [1, 2], "comment": "淡いピンクのロンTとグレーのワイドパンツの組み合わせが可愛い。"},
+			{"max": 20, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143832/9143832_1_1740754133431_l.jpg", "weather_code": [1, 2, 3], "comment": "メッシュニットとワイドパンツのこなれ感コーデ"},
+			{"max": 20, "min": 10, "url": "https://static-sb.dot-st.com/jp/ja/styling/9741150/9741150_1_1763110859742_l.jpg", "weather_code": [1, 2], "comment": "ロゴスウェットとコーデュロイパンツの大人カジュアルコーデ"},
+			{"max": 20, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710327/9710327_1_1761922602406_l.jpg", "weather_code": [1, 2, 3], "comment": "ニットとコーデュロイの温かみある組み合わせ。"},
+			{"max": 20, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508395/9508395_1_1753973421400_l.jpg", "weather_code": [1, 2], "comment": "ベロアシャツとワイドパンツのモードな着こなし。"},
+			{"max": 20, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143658/9143658_1_1740750615046_l.jpg", "weather_code": [1, 2], "comment": "ブルーのニットと白パンツの爽やかな組み合わせ。"},
+			{"max": 20, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9637158/9637158_1_1759225954329_l.jpg", "weather_code": [1, 2], "comment": "ブラウンのトップスとデニムのカジュアルコーデ"},
+			{"max": 20, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9075444/9075444_1_1738244341066_l.jpg", "weather_code": [1, 2], "comment": "スポーティーなロゴスウェットとチノパンツのカジュアルコーデ。"},
+			{"max": 19, "min": 10, "url": "https://static-sb.dot-st.com/jp/ja/styling/9762532/9762532_1_1764038218993_l.jpg", "weather_code": [1, 2], "comment": "ニットチュニックとサテンスカートの異素材ミックスがおしゃれ。"},
+			{"max": 19, "min": 10, "url": "https://static-sb.dot-st.com/jp/ja/styling/9582655/9582655_1_1757204156514_l.jpg", "weather_code": [1, 2], "comment": "ニットベストとパーカーのレイヤードがおしゃれ！"},
+			{"max": 19, "min": 10, "url": "https://static-sb.dot-st.com/jp/ja/styling/9216481/9216481_1_1743433182158_l.jpg", "weather_code": [1, 2], "comment": "デニムシャツとミニスカートの甘辛ミックスコーデ。"},
+			{"max": 19, "min": 10, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143866/9143866_1_1740754769656_l.jpg", "weather_code": [1, 2], "comment": "ストライプシャツワンピとニットベストのレイヤードがおしゃれ。"},
+			{"max": 19, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078495/9078495_1_1738335562653_l.jpg", "weather_code": [1, 2], "comment": "ブルーのニットとデニムのこなれ感ある着こなし。"},
+			{"max": 19, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9069721/9069721_1_1738056040653_l.jpg", "weather_code": [2, 4], "comment": "ロゴスウェットとシアーワンピースのレイヤードがおしゃれ。"},
+			{"max": 19, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/8971828/8971828_1_1734314264687_l.jpg", "weather_code": [1, 2], "comment": "リブニットとプリーツスカートの異素材MIXがおしゃれ。"},
+			{"max": 19, "min": 10, "url": "https://static-sb.dot-st.com/jp/ja/styling/9751260/9751260_1_1763537605582_l.jpg", "weather_code": [2, 4], "comment": "ノルディック柄ニットとバギーデニムのゆるカジコーデ。"},
+			{"max": 19, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9637844/9637844_1_1759241460991_l.jpg", "weather_code": [1, 2], "comment": "秋らしいチェック柄とベロアパンツの組み合わせが素敵。"},
+			{"max": 19, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440400/9440400_1_1751291596864_l.jpg", "weather_code": [1, 2], "comment": "ストリート感のあるモノトーンコーデが魅力的。"},
+			{"max": 19, "min": 10, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143851/9143851_1_1740754523559_l.jpg", "weather_code": [2], "comment": "スウェットとパンツのモノトーンコーデがお洒落。"},
+			{"max": 19, "min": 10, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143608/9143608_1_1740749362255_l.jpg", "weather_code": [1, 2], "comment": "カジュアルなプルオーバーとチノパンの好バランスコーデ"},
+			{"max": 19, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9005290/9005290_1_1735478776801_l.jpg", "weather_code": [1, 2, 3], "comment": "ニットとシャツのレイヤードがこなれ感を演出。"},
+			{"max": 19, "min": 10, "url": "https://static-sb.dot-st.com/jp/ja/styling/9765419/9765419_1_1764144698061_l.jpg", "weather_code": [2, 4], "comment": "鮮やかな赤のカーディガンが可愛らしいですね。"},
+			{"max": 19, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9637506/9637506_1_1759234782647_l.jpg", "weather_code": [1, 2], "comment": "カジュアルな黒トップスとデニムの組み合わせが可愛い！"},
+			{"max": 19, "min": 10, "url": "https://static-sb.dot-st.com/jp/ja/styling/9203186/9203186_1_1742963165664_l.jpg", "weather_code": [1, 2], "comment": "スポーティーな上下でアクティブな印象。"},
+			{"max": 19, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/9139027/9139027_1_1740614451541_l.jpg", "weather_code": [1, 2], "comment": "カジュアルなオーバーオールとスウェットの組み合わせが可愛い。"},
+			{"max": 19, "min": 11, "url": "https://static-sb.dot-st.com/jp/ja/styling/8979267/8979267_1_1734566025297_l.jpg", "weather_code": [1, 2], "comment": "赤のスウェットが元気で可愛い！"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9765619/9765619_1_1764148989487_l.jpg", "weather_code": [1, 2], "comment": "ゆったりニットとプリーツスカートの大人カジュアルコーデ"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9744811/9744811_1_1763279432772_l.jpg", "weather_code": [1, 2], "comment": "シャギーニットカーディガンとコーデュロイパンツの異素材MIXコーデ"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9765602/9765602_1_1764148399993_l.jpg", "weather_code": [2, 4], "comment": "モヘアベストとニットワンピースの異素材ミックスが素敵。"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710353/9710353_1_1761922779095_l.jpg", "weather_code": [2], "comment": "ゆったりニットとワイドデニムのこなれ感"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710347/9710347_1_1761922720038_l.jpg", "weather_code": [1, 2], "comment": "シックなモノトーンコーデが大人っぽい。"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710326/9710326_1_1761922591436_l.jpg", "weather_code": [1, 2, 4], "comment": "ラフなスウェットとパンツのカジュアルコーデ"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9614574/9614574_1_1758370533717_l.jpg", "weather_code": [1, 2], "comment": "スポーティーなパーカーとロングスカートの大人カジュアルコーデ。"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143861/9143861_1_1740754693246_l.jpg", "weather_code": [1, 2], "comment": "淡いグリーンのニットとデニムスカートの爽やかコーデ。"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9122385/9122385_1_1739955413098_l.jpg", "weather_code": [1, 2], "comment": "ベロア素材とストライプ柄の組み合わせが上品。"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078480/9078480_1_1738335328552_l.jpg", "weather_code": [1, 3], "comment": "淡いイエローのトップスとベージュのパンツの優しいワントーンコーデ。"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/8971854/8971854_1_1734314704292_l.jpg", "weather_code": [1], "comment": "スウェットとシャツのレイヤードがこなれ感◎"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9009360/9009360_1_1735653204370_l.jpg", "weather_code": [1, 2], "comment": "ラメとシャギーの異素材MIXが可愛い！"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9005213/9005213_1_1735477046283_l.jpg", "weather_code": [2], "comment": "モヘアニットとプリーツスカートの組み合わせが可愛い。"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9005207/9005207_1_1735476730601_l.jpg", "weather_code": [1, 2], "comment": "ブルーのニットに黒パンツの大人カジュアルコーデ。"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/8971903/8971903_1_1734315418538_l.jpg", "weather_code": [1, 2, 3], "comment": "パール付きニットとワイドパンツの大人カジュアルコーデ"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9761269/9761269_1_1763975653409_l.jpg", "weather_code": [2, 4], "comment": "フェアアイル柄ニットとブルゾンの組み合わせがお洒落。"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9757404/9757404_1_1763785658839_l.jpg", "weather_code": [1, 2], "comment": "ブラウンのニットと黒パンツの大人カジュアルコーデ。"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9763551/9763551_1_1764067575460_l.jpg", "weather_code": [1, 2], "comment": "ノルディック柄ニットとスラックスの大人カジュアルコーデ。"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710344/9710344_1_1761922714023_l.jpg", "weather_code": [1, 2], "comment": "チェック柄シャツとコーデュロイパンツのカジュアルコーデ。"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710109/9710109_1_1761919068919_l.jpg", "weather_code": [2, 3], "comment": "スウェットとパンツのシンプルコーデ。大人カジュアル。"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9604231/9604231_1_1758028645160_l.jpg", "weather_code": [1, 2], "comment": "ラベンダーカラーのニットポロとワイドパンツの大人カジュアルコーデ。"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9344818/9344818_1_1747910862849_l.jpg", "weather_code": [1, 2], "comment": "透かし編みベストとデニムのこなれ感ある着こなし。"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9216296/9216296_1_1743427489531_l.jpg", "weather_code": [1, 2], "comment": "ライトカラーのパーカーとダークデニムの定番コーデ。"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143834/9143834_1_1740754156137_l.jpg", "weather_code": [2, 1], "comment": "カジュアルなスウェットとスリムパンツの好バランスコーデ"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078178/9078178_1_1738327669424_l.jpg", "weather_code": [1, 2], "comment": "チェックシャツとワッフルTのカジュアルコーデ"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078173/9078173_1_1738327564388_l.jpg", "weather_code": [2], "comment": "鮮やかなブルーのスウェットセットアップがスポーティーで良いですね。"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078170/9078170_1_1738327525005_l.jpg", "weather_code": [1, 2], "comment": "スポーティーなロゴスウェットでリラックス感のある着こなし。"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078168/9078168_1_1738327484344_l.jpg", "weather_code": [2], "comment": "リラックス感のあるスウェットセットアップが可愛い。"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078166/9078166_1_1738327290409_l.jpg", "weather_code": [1, 2], "comment": "黒のスウェットとパンツで統一感のあるスポーティスタイル。"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9009301/9009301_1_1735651434910_l.jpg", "weather_code": [1, 2], "comment": "落ち着いた色合いのニットとスラックスで大人カジュアル。"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9765105/9765105_1_1764135629882_l.jpg", "weather_code": [2], "comment": "レトロなスウェットが可愛い！"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9764881/9764881_1_1764130004008_l.jpg", "weather_code": [1, 2], "comment": "スポーティーなトレーナーとパンツの組み合わせがアクティブな印象。"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9709896/9709896_1_1761916006430_l.jpg", "weather_code": [1, 2], "comment": "カジュアルなTシャツとデニムスカートの組み合わせが可愛い。"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9289459/9289459_1_1746021315081_l.jpg", "weather_code": [1], "comment": "スポーティーなTシャツとスニーカーで元気いっぱい！"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9141680/9141680_1_1740706740310_l.jpg", "weather_code": [2], "comment": "リラックス感のあるスウェットパンツとメッシュニットの組み合わせが可愛い。"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9138689/9138689_1_1740577010265_l.jpg", "weather_code": [1, 2], "comment": "白Tとデニムの定番コーデ。元気な足元がアクセント。"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078357/9078357_1_1738331927495_l.jpg", "weather_code": [2], "comment": "襟付きスウェットでカジュアルながらも上品な印象。"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9075436/9075436_1_1738244075846_l.jpg", "weather_code": [1, 2], "comment": "淡いブルーのカーディガンとデニムスカートが可愛い！"},
+			{"max": 18, "min": 7, "url": "https://static-sb.dot-st.com/jp/ja/styling/9009448/9009448_1_1735656788086_l.jpg", "weather_code": [1, 2], "comment": "パープルスウェットとデニムのカジュアルコーデ。"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9008311/9008311_1_1735617259699_l.jpg", "weather_code": [1, 2], "comment": "白パーカーとデニムのカジュアルコーデ！"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9003483/9003483_7_1735425334715_l.jpg", "weather_code": [2, 4], "comment": "スウェットとニット帽でカジュアルなリンクコーデ"},
+			{"max": 18, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9714121/9714121_1_1762090771679_l.jpg", "weather_code": [1, 2], "comment": "ロゴスウェットとワイドパンツのラフな着こなし。"},
+			{"max": 17, "min": 8, "url": "https://static-sb.dot-st.com/jp/ja/styling/9765536/9765536_1_1764146650495_l.jpg", "weather_code": [4], "comment": "裏起毛パーカーとデニムのカジュアルコーデ"},
+			{"max": 17, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9005199/9005199_1_1735476582765_l.jpg", "weather_code": [1, 2], "comment": "ケーブルニットとチェック柄スカートの大人カジュアルコーデ"},
+			{"max": 17, "min": 9, "url": "https://static-sb.dot-st.com/jp/ja/styling/9009296/9009296_1_1735651320050_l.jpg", "weather_code": [2, 4], "comment": "ニットとデニムの大人カジュアルコーデ。"},
+			{"max": 17, "min": 8, "url": "https://static-sb.dot-st.com/jp/ja/styling/9753346/9753346_1_1764132996939_l.jpg", "weather_code": [2, 4], "comment": "カジュアルでキュートなハート柄デニムスタイル。"},
+			{"max": 17, "min": 8, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710341/9710341_1_1761922686669_l.jpg", "weather_code": [2, 3, 4], "comment": "カジュアルなスウェットとカーゴパンツの組み合わせがかっこいい！"},
+			{"max": 15, "min": 6, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143156/9143156_1_1740737640265_l.jpg", "weather_code": [2], "comment": "デニムジャケットと花柄スカートの甘辛MIXコーデ"},
+			{"max": 15, "min": 7, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569729/9569729_1_1756652059932_l.jpg", "weather_code": [1, 2], "comment": "ワークテイストのセットアップがクール。"},
+			{"max": 14, "min": 7, "url": "https://static-sb.dot-st.com/jp/ja/styling/9440530/9440530_1_1751295081930_l.jpg", "weather_code": [1, 2], "comment": "軽やかなジャケットとスカートの組み合わせが素敵。"},
+			{"max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9075559/9075559_1_1738248407978_l.jpg", "weather_code": [1, 2], "comment": "モードなセットアップに鮮やかなブルーが映える"},
+			{"max": 14, "min": 7, "url": "https://static-sb.dot-st.com/jp/ja/styling/9736880/9736880_1_1762938281813_l.jpg", "weather_code": [2, 4], "comment": "ショート丈ジャケットとカーゴパンツの着こなしがクール。"},
+			{"max": 14, "min": 6, "url": "https://static-sb.dot-st.com/jp/ja/styling/9717448/9717448_1_1762241595871_l.jpg", "weather_code": [1, 2, 3], "comment": "レザーの質感がクールな大人カジュアルコーデ。"},
+			{"max": 14, "min": 7, "url": "https://static-sb.dot-st.com/jp/ja/styling/9215891/9215891_1_1743416362889_l.jpg", "weather_code": [1, 2], "comment": "ラフなジャケットとデニムのこなれ感"},
+			{"max": 14, "min": 7, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143814/9143814_1_1740753708757_l.jpg", "weather_code": [1, 2], "comment": "アニマル柄カーディガンとカーゴパンツのワイルドな組み合わせ。"},
+			{"max": 14, "min": 7, "url": "https://static-sb.dot-st.com/jp/ja/styling/9136883/9136883_1_1740753146859_l.jpg", "weather_code": [1, 2], "comment": "クールなレザースタイルが個性的。"},
+			{"max": 14, "min": 6, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078181/9078181_1_1738327733143_l.jpg", "weather_code": [1, 2, 3], "comment": "ミリタリーテイストのセットアップが都会的。"},
+			{"max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9009413/9009413_1_1735655245775_l.jpg", "weather_code": [1, 2], "comment": "都会的で洗練されたスーツスタイル。"},
+			{"max": 14, "min": 6, "url": "https://static-sb.dot-st.com/jp/ja/styling/9009304/9009304_1_1735651474724_l.jpg", "weather_code": [1, 2], "comment": "ブルゾンとデニムの大人カジュアルコーデ。"},
+			{"max": 14, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9635307/9635307_1_1759155467843_l.jpg", "weather_code": [1, 2, 3], "comment": "爽やかな色合いのブルゾンがアクティブな印象。"},
+			{"max": 14, "min": 7, "url": "https://static-sb.dot-st.com/jp/ja/styling/9628283/9628283_1_1758857893562_l.jpg", "weather_code": [1, 2, 3], "comment": "軽やかなブルゾンとカーゴパンツでアクティブな印象に。"},
+			{"max": 13, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9765620/9765620_1_1764148999872_l.jpg", "weather_code": [2, 4], "comment": "スポーティーなブルゾンとワイドパンツのこなれ感"},
+			{"max": 13, "min": 6, "url": "https://static-sb.dot-st.com/jp/ja/styling/9733524/9733524_1_1762821622216_l.jpg", "weather_code": [2], "comment": "レザー調ジャケットとワイドパンツの大人カジュアルコーデ。"},
+			{"max": 13, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9731770/9731770_1_1762745427159_l.jpg", "weather_code": [1, 2, 4], "comment": "デニムとボアの異素材ミックスがおしゃれ。"},
+			{"max": 13, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9709863/9709863_1_1761915554344_l.jpg", "weather_code": [2, 4], "comment": "ブルゾンとロングスカートの大人カジュアルコーデ。"},
+			{"max": 13, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710346/9710346_1_1761922719019_l.jpg", "weather_code": [1, 2], "comment": "大人っぽい柄のブルゾンとロングスカートの組み合わせ。"},
+			{"max": 13, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710093/9710093_1_1761918814058_l.jpg", "weather_code": [1, 2], "comment": "個性的なカーディガンとロングスカートの組み合わせが魅力的。"},
+			{"max": 13, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9643364/9643364_3_1759459774518_l.jpg", "weather_code": [2, 4], "comment": "クールなレザージャケットとニットスカートの異素材MIXコーデ"},
+			{"max": 13, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9637989/9637989_1_1759244029893_l.jpg", "weather_code": [1, 2], "comment": "デニムジャケットとワイドパンツのセットアップがお洒落。"},
+			{"max": 13, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569745/9569745_1_1756652381217_l.jpg", "weather_code": [1, 2], "comment": "イエローカーディガンとデニムのカジュアルコーデ"},
+			{"max": 13, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9095226/9095226_1_1738944561903_l.jpg", "weather_code": [2, 1], "comment": "軽やかなジャケットスタイルが春らしい着こなし。"},
+			{"max": 13, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078492/9078492_1_1738335465485_l.jpg", "weather_code": [2], "comment": "ダークカラーのニットとスカートの大人カジュアルコーデ"},
+			{"max": 13, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078488/9078488_1_1738335414978_l.jpg", "weather_code": [1, 2], "comment": "トレンチコートとデニムの大人カジュアルコーデ。"},
+			{"max": 13, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078455/9078455_1_1738334760185_l.jpg", "weather_code": [1, 2, 3], "comment": "ネイビーのコートとボーダーニットの大人カジュアルコーデ。"},
+			{"max": 13, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9078478/9078478_1_1738335288092_l.jpg", "weather_code": [1, 2], "comment": "ブラウンのジャケットとデニムの大人カジュアルコーデ"},
+			{"max": 13, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9689182/9689182_1_1761202956868_l.jpg", "weather_code": [1, 2], "comment": "コーデュロイのシャツジャケットが着こなしの主役。"},
+			{"max": 13, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9763903/9763903_1_1764080810065_l.jpg", "weather_code": [2, 4], "comment": "カーキのブルゾンとグレーのニットの落ち着いた配色が大人っぽい。"},
+			{"max": 13, "min": 3, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710267/9710267_1_1761921905267_l.jpg", "weather_code": [1, 2, 3], "comment": "ボアジャケットとスニーカーでカジュアルにまとめたスタイル。"},
+			{"max": 13, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710108/9710108_1_1761919033278_l.jpg", "weather_code": [2], "comment": "コーデュロイ素材のセットアップがおしゃれ。"},
+			{"max": 13, "min": 1, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710107/9710107_1_1761918986689_l.jpg", "weather_code": [1, 2], "comment": "コーデュロイジャケットとスウェットパンツの大人カジュアルコーデ。"},
+			{"max": 13, "min": 3, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710234/9710234_1_1761921293469_l.jpg", "weather_code": [1, 2], "comment": "チェック柄のシャツジャケットとスラックスの大人カジュアルコーデ"},
+			{"max": 13, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9710102/9710102_1_1761918945933_l.jpg", "weather_code": [1, 2], "comment": "コーデュロイジャケットとパンツの落ち着いた色合いが素敵。"},
+			{"max": 13, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569643/9569643_1_1756650440159_l.jpg", "weather_code": [1, 2], "comment": "デニムカバーオールとチノパンの王道カジュアルコーデ。"},
+			{"max": 13, "min": 6, "url": "https://static-sb.dot-st.com/jp/ja/styling/9569641/9569641_1_1756651905505_l.jpg", "weather_code": [2, 3], "comment": "ナイロンジャケットとチノパンの定番コーデ。"},
+			{"max": 13, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9563837/9563837_1_1756651593147_l.jpg", "weather_code": [1, 2], "comment": "カバーオールとパンツのセットアップがお洒落。"},
+			{"max": 13, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9568840/9568840_1_1756651291272_l.jpg", "weather_code": [2, 3], "comment": "ヴィンテージライクなジャケットとペインターパンツの大人カジュアルコーデ"},
+			{"max": 13, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9508392/9508392_1_1753973271247_l.jpg", "weather_code": [1, 2], "comment": "シアーな柄ジャケットがモードな印象。"},
+			{"max": 13, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9212260/9212260_1_1743295514393_l.jpg", "weather_code": [1, 2], "comment": "ブラックで統一されたクールなレースブルゾンコーデ。"},
+			{"max": 13, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9212241/9212241_1_1743295223260_l.jpg", "weather_code": [1, 2], "comment": "モノトーンでまとめたモードな着こなし。"},
+			{"max": 13, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9216035/9216035_1_1743420527965_l.jpg", "weather_code": [1, 2, 3], "comment": "ブルゾンとデニムのカジュアルコーデ。キャップがアクセント。"},
+			{"max": 13, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143648/9143648_1_1740750227737_l.jpg", "weather_code": [1, 2], "comment": "ダメージ加工のデニムセットアップがクール。"},
+			{"max": 13, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143136/9143136_1_1740749839960_l.jpg", "weather_code": [1, 2], "comment": "マスタードカラーのカーディガンが上品なアクセント。"},
+			{"max": 13, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9009310/9009310_1_1735651670378_l.jpg", "weather_code": [1, 2], "comment": "ブルゾンとニットの異素材ミックスがお洒落。"},
+			{"max": 13, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9005304/9005304_1_1735479016089_l.jpg", "weather_code": [2, 4], "comment": "ダメージデニムシャツとレザーパンツの辛口コーデ"},
+			{"max": 13, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9003093/9003093_1_1735393423765_l.jpg", "weather_code": [2, 4], "comment": "クールな色合いと素材感で都会的な着こなし。"},
+			{"max": 13, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9748499/9748499_1_1763436455991_l.jpg", "weather_code": [1, 2], "comment": "モノトーンでまとめた、クールなストリートスタイル。"},
+			{"max": 13, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9709319/9709319_1_1761904303331_l.jpg", "weather_code": [2, 4], "comment": "キルティングのセットアップが可愛い！"},
+			{"max": 13, "min": 4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9637025/9637025_1_1759223917981_l.jpg", "weather_code": [2], "comment": "アクティブな印象のカジュアルコーデ。"},
+			{"max": 13, "min": 5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9009358/9009358_3_1735653321418_l.jpg", "weather_code": [2, 4], "comment": "ファー素材のパーカーが暖かく、カジュアルで可愛い着こなし。"},
+			{"max": 13, "min": 6, "url": "https://static-sb.dot-st.com/jp/ja/styling/8535318/8535318_1_1719757492669_l.jpg", "weather_code": [1, 3], "comment": "機能的なレインコートとカーゴパンツの都会的スタイル。"},
+			{"max": 12, "min": 3, "url": "https://static-sb.dot-st.com/jp/ja/styling/9005220/9005220_1_1735477200530_l.jpg", "weather_code": [2, 3], "comment": "ハンティングジャケットとデニムスカートの大人カジュアルコーデ"},
+			{"max": 9, "min": 1, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143864/9143864_1_1740754747389_l.jpg", "weather_code": [1, 2, 4], "comment": "フェイクファーのブルゾンが季節感を演出。"},
+			{"max": 9, "min": 2, "url": "https://static-sb.dot-st.com/jp/ja/styling/9009397/9009397_1_1735654221976_l.jpg", "weather_code": [2, 4], "comment": "クールなモノトーンコーデにロックテイストをプラス"},
+			{"max": 5, "min": -5, "url": "https://static-sb.dot-st.com/jp/ja/styling/9818407/9818407_1_1766277390954_l.jpg", "weather_code": [4], "comment": "雪山映えするカラフルなスキーウェアで防寒対策もバッチリ！"},
+			{"max": 3, "min": -4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9765526/9765526_1_1764146367734_l.jpg", "weather_code": [1, 2], "comment": "暖かみのあるダウンとミニスカートの甘辛MIXコーデ"},
+			{"max": 3, "min": -6, "url": "https://static-sb.dot-st.com/jp/ja/styling/8988367/8988367_1_1734868323233_l.jpg", "weather_code": [2, 4], "comment": "白のモンスターコートとグレーパンツのモノトーンコーデ。"},
+			{"max": 3, "min": -6, "url": "https://static-sb.dot-st.com/jp/ja/styling/9007086/9007086_1_1735555759843_l.jpg", "weather_code": [2, 4], "comment": "ダウンジャケットとニットのあったかコーデ。"},
+			{"max": 3, "min": -6, "url": "https://static-sb.dot-st.com/jp/ja/styling/9765089/9765089_1_1764135017736_l.jpg", "weather_code": [1, 2], "comment": "暖かみのある赤と迷彩柄の組み合わせが個性的。"},
+			{"max": 3, "min": -4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9009309/9009309_1_1735651656441_l.jpg", "weather_code": [2, 4], "comment": "ダウンジャケットとスウェットのカジュアルコーデ"},
+			{"max": 3, "min": -4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9709550/9709550_1_1761909598106_l.jpg", "weather_code": [2, 4], "comment": "迷彩柄パーカーとミニスカートの辛口MIXコーデ。"},
+			{"max": 3, "min": -7, "url": "https://static-sb.dot-st.com/jp/ja/styling/9828173/9828173_1_1766711838147_l.jpg", "weather_code": [1, 2, 3, 4], "comment": "ダウンジャケットとニットワンピースのあったかコーデ"},
+			{"max": 3, "min": -4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9755005/9755005_1_1763692069810_l.jpg", "weather_code": [2, 4], "comment": "ファー付きダウンとカーゴパンツで冬のカジュアルスタイル。"},
+			{"max": 3, "min": -4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9843475/9843475_1_1767540086096_l.jpg", "weather_code": [3, 4], "comment": "ダウンジャケットとスウェットで防寒性抜群의カジュアルコーデ。"},
+			{"max": 3, "min": -4, "url": "https://static-sb.dot-st.com/jp/ja/styling/9888290/9888290_1_1769437933754_l.jpg", "weather_code": [1, 2, 4], "comment": "カラフルで遊び心のある、元気いっぱいの装い。"},
+			{"max": 0, "min": 0, "url": "https://static-sb.dot-st.com/jp/ja/styling/9143868/9143868_1_1740754791012_l.jpg", "weather_code": [2], "comment": "コメントは生成できません。"}
 		];
+        
 
-        function App() {
-            const [filter, setFilter] = useState("ALL");
-            
-            useEffect(() => {
-                document.body.classList.add('loaded');
-            }, []);
+		// --- メインアプリ ---
+		function App() {
+		    const [filter, setFilter] = useState("ALL");
+		    
+		    // ロード完了時にフェードイン
+		    useEffect(() => {
+		        document.body.classList.add('loaded');
+		    }, []);
 
-            // 天気コードとラベルの対応表
-            const weatherMap = {
-                1: { label: "晴れ", emoji: "☀️", colorClass: "bg-orange-50 text-orange-600 border-orange-200", activeBg: "bg-orange-600" },
-                2: { label: "曇り", emoji: "☁️", colorClass: "bg-gray-100 text-gray-600 border-gray-200", activeBg: "bg-gray-600" },
-                3: { label: "雨", emoji: "☂️", colorClass: "bg-blue-50 text-blue-600 border-blue-200", activeBg: "bg-blue-600" },
-                4: { label: "雪", emoji: "❄️", colorClass: "bg-cyan-50 text-cyan-600 border-cyan-200", activeBg: "bg-cyan-600" },
-                0: { label: "分析対象外", emoji: "❓", colorClass: "bg-slate-100 text-slate-500 border-slate-200", activeBg: "bg-slate-500" }
-            };
+		    // 天気コードとラベルの対応表
+		    const weatherMap = {
+		        1: { label: "晴れ", emoji: "☀️", colorClass: "bg-orange-50 text-orange-600 border-orange-200" },
+		        2: { label: "曇り", emoji: "☁️", colorClass: "bg-gray-100 text-gray-600 border-gray-200" },
+		        3: { label: "雨", emoji: "☂️", colorClass: "bg-blue-50 text-blue-600 border-blue-200" },
+		        4: { label: "雪", emoji: "❄️", colorClass: "bg-cyan-50 text-cyan-600 border-cyan-200" }
+		    };
 
-            const filteredData = filter === "ALL" 
-                ? RAW_DATA 
-                : RAW_DATA.filter(item => item.weather_code.includes(Number(filter)));
+		    // フィルタリング処理の修正
+		    const filteredData = filter === "ALL" 
+		        ? RAW_DATA 
+		        : RAW_DATA.filter(item => item.weather_code.includes(Number(filter)));
 
-            const buttons = [
-                { id: "ALL", label: "すべて", icon: null, activeBg: "bg-indigo-600" },
-                { id: 1, label: "晴れ", icon: <EmojiIcon symbol="☀️" />, activeBg: "bg-orange-600" },
-                { id: 2, label: "曇り", icon: <EmojiIcon symbol="☁️" />, activeBg: "bg-gray-600" },
-                { id: 3, label: "雨", icon: <EmojiIcon symbol="☂️" />, activeBg: "bg-blue-600" },
-                { id: 4, label: "雪", icon: <EmojiIcon symbol="❄️" />, activeBg: "bg-cyan-600" },
-                { id: 0, label: "分析対象外", icon: <EmojiIcon symbol="❓" />, activeBg: "bg-slate-500" },
-            ];
+		    const buttons = [
+		        { id: "ALL", label: "すべて", icon: null, color: "indigo" },
+		        { id: 1, label: "晴れ", icon: <EmojiIcon symbol="☀️" />, color: "orange" },
+		        { id: 2, label: "曇り", icon: <EmojiIcon symbol="☁️" />, color: "gray" },
+		        { id: 3, label: "雨", icon: <EmojiIcon symbol="☂️" />, color: "blue" },
+		        { id: 4, label: "雪", icon: <EmojiIcon symbol="❄️" />, color: "cyan" },
+		    ];
 
-            return (
-                <div className="min-h-screen pb-12 font-sans text-gray-900">
-                    <header className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
-                        <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <div className="bg-indigo-600 text-white p-1.5 rounded-lg flex items-center justify-center w-8 h-8">
-                                    <EmojiIcon symbol="👕" />
-                                </div>
-                                <h1 className="text-lg font-bold tracking-tight text-gray-800">STYLE BOOK</h1>
-                            </div>
-                            <div className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                                {filteredData.length} Styles
-                            </div>
-                        </div>
-                    </header>
+		    return (
+		        <div className="min-h-screen pb-12 font-sans text-gray-900">
+		            {/* Header */}
+		            <header className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
+		                <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
+		                    <div className="flex items-center gap-2">
+		                        <div className="bg-indigo-600 text-white p-1.5 rounded-lg flex items-center justify-center w-8 h-8">
+		                            <EmojiIcon symbol="👕" />
+		                        </div>
+		                        <h1 className="text-lg font-bold tracking-tight text-gray-800">STYLE BOOK</h1>
+		                    </div>
+		                    <div className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+		                        {filteredData.length} Styles
+		                    </div>
+		                </div>
+		            </header>
 
-                    <div className="bg-white border-b border-gray-100 shadow-sm sticky top-14 z-40">
-                        <div className="max-w-7xl mx-auto px-4 py-3 overflow-x-auto no-scrollbar">
-                            <div className="flex gap-2">
-                                {buttons.map((btn) => {
-                                    const isActive = filter === btn.id;
-                                    return (
-                                        <button 
-                                            key={btn.id}
-                                            onClick={() => setFilter(btn.id)}
-                                            className={`
-                                                whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 flex items-center gap-1.5 shadow-sm
-                                                ${isActive 
-                                                    ? `${btn.activeBg} text-white shadow-md scale-105` 
-                                                    : "bg-white text-gray-500 border border-gray-200 hover:bg-gray-50 hover:border-gray-300"}
-                                            `}
-                                        >
-                                            {btn.icon} {btn.label}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    </div>
+		            {/* Filter Bar */}
+		            <div className="bg-white border-b border-gray-100 shadow-sm sticky top-14 z-40">
+		                <div className="max-w-7xl mx-auto px-4 py-3 overflow-x-auto no-scrollbar">
+		                    <div className="flex gap-2">
+		                        {buttons.map((btn) => {
+		                            const isActive = filter === btn.id;
+		                            let activeClass = "";
+		                            if(btn.color === "indigo") activeClass = "bg-indigo-600 text-white shadow-indigo-200";
+		                            if(btn.color === "orange") activeClass = "bg-orange-50 text-white shadow-orange-200";
+		                            if(btn.color === "gray") activeClass = "bg-gray-600 text-white shadow-gray-200";
+		                            if(btn.color === "blue") activeClass = "bg-blue-50 text-white shadow-blue-200";
+		                            if(btn.color === "cyan") activeClass = "bg-cyan-50 text-white shadow-cyan-200";
 
-                    <main className="max-w-7xl mx-auto px-4 py-6">
-                        {filteredData.length > 0 ? (
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
-                                {filteredData.map((item, index) => (
-                                    <div key={index} className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col h-full group cursor-pointer">
-                                        <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
-                                            <img 
-                                                src={item.url} 
-                                                alt="Styling" 
-                                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                                                loading="lazy"
-                                            />
-                                            <div className="absolute bottom-2 left-2 bg-white/95 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm border border-white/20">
-                                                <div className="flex items-center gap-2">
-                                                    <div className="flex flex-col items-center leading-none">
-                                                        <span className="text-[8px] font-bold text-red-500 uppercase tracking-wider mb-0.5">Max</span>
-                                                        <span className="text-sm font-bold text-gray-800">{item.max !== null ? item.max : '-'}</span>
-                                                    </div>
-                                                    <div className="w-px h-6 bg-gray-200 mx-0.5"></div>
-                                                    <div className="flex flex-col items-center leading-none">
-                                                        <span className="text-[8px] font-bold text-blue-500 uppercase tracking-wider mb-0.5">Min</span>
-                                                        <span className="text-sm font-bold text-gray-800">{item.min !== null ? item.min : '-'}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+		                            return (
+		                                <button 
+		                                    key={btn.id}
+		                                    onClick={() => setFilter(btn.id)}
+		                                    className={`
+		                                        whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 flex items-center gap-1.5 shadow-sm
+		                                        ${isActive ? activeClass + " shadow-md scale-105" : "bg-white text-gray-500 border border-gray-200 hover:bg-gray-50 hover:border-gray-300"}
+		                                    `}
+		                                >
+		                                    {btn.icon} {btn.label}
+		                                </button>
+		                            );
+		                        })}
+		                    </div>
+		                </div>
+		            </div>
 
-                                        <div className="p-3 flex-1 flex flex-col gap-2">
-                                            <div className="min-h-[22px] flex flex-wrap gap-1">
-                                                {item.weather_code.map((code) => {
-                                                    const weather = weatherMap[code];
-                                                    if (!weather) return null;
-                                                    return (
-                                                        <span key={code} className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium border ${weather.colorClass}`}>
-                                                            {weather.emoji} {weather.label}
-                                                        </span>
-                                                    );
-                                                })}
-                                            </div>
-                                            <p className="text-gray-600 text-xs leading-relaxed line-clamp-2">
-                                                {item.comment}
-                                            </p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="flex flex-col items-center justify-center py-24 text-gray-400">
-                                <div className="bg-gray-100 p-4 rounded-full mb-4 text-4xl">🔍</div>
-                                <p className="font-medium">該当するスタイルが見つかりませんでした</p>
-                                <button 
-                                    onClick={() => setFilter("ALL")}
-                                    className="mt-4 text-xs text-indigo-600 font-bold hover:underline"
-                                >
-                                    すべてのスタイルを表示
-                                </button>
-                            </div>
-                        )}
-                    </main>
-                </div>
-            );
-        }
+		            {/* Grid Content */}
+		            <main className="max-w-7xl mx-auto px-4 py-6">
+		                {filteredData.length > 0 ? (
+		                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
+		                        {filteredData.map((item, index) => (
+		                            <div key={index} className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col h-full group cursor-pointer">
+		                                <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
+		                                    <img 
+		                                        src={item.url} 
+		                                        alt="Styling" 
+		                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+		                                        loading="lazy"
+		                                    />
+		                                    <div className="absolute bottom-2 left-2 bg-white/95 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm border border-white/20">
+		                                        <div className="flex items-center gap-2">
+		                                            <div className="flex flex-col items-center leading-none">
+		                                                <span className="text-[8px] font-bold text-red-500 uppercase tracking-wider mb-0.5">Max</span>
+		                                                <span className="text-sm font-bold text-gray-800">{item.max}</span>
+		                                            </div>
+		                                            <div className="w-px h-6 bg-gray-200 mx-0.5"></div>
+		                                            <div className="flex flex-col items-center leading-none">
+		                                                <span className="text-[8px] font-bold text-blue-500 uppercase tracking-wider mb-0.5">Min</span>
+		                                                <span className="text-sm font-bold text-gray-800">{item.min !== null ? item.min : '-'}</span>
+		                                            </div>
+		                                        </div>
+		                                    </div>
+		                                </div>
+
+		                                <div className="p-3 flex-1 flex flex-col gap-2">
+		                                    <div className="min-h-[22px] flex flex-wrap gap-1">
+		                                        {/* weather_codeに基づいてバッジを表示 */}
+		                                        {item.weather_code.map((code) => {
+		                                            const weather = weatherMap[code];
+		                                            if (!weather) return null;
+		                                            return (
+		                                                <span key={code} className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium border ${weather.colorClass}`}>
+		                                                    {weather.emoji} {weather.label}
+		                                                </span>
+		                                            );
+		                                        })}
+		                                    </div>
+		                                    <p className="text-gray-600 text-xs leading-relaxed line-clamp-2">
+		                                        {item.comment}
+		                                    </p>
+		                                </div>
+		                            </div>
+		                        ))}
+		                    </div>
+		                ) : (
+		                    <div className="flex flex-col items-center justify-center py-24 text-gray-400">
+		                        <div className="bg-gray-100 p-4 rounded-full mb-4 text-4xl">
+		                            🔍
+		                        </div>
+		                        <p className="font-medium">該当するスタイルが見つかりませんでした</p>
+		                        <button 
+		                            onClick={() => setFilter("ALL")}
+		                            className="mt-4 text-xs text-indigo-600 font-bold hover:underline"
+		                        >
+		                            すべてのスタイルを表示
+		                        </button>
+		                    </div>
+		                )}
+		            </main>
+		        </div>
+		    );
+		}
 
         const root = createRoot(document.getElementById('root'));
         root.render(<App />);
